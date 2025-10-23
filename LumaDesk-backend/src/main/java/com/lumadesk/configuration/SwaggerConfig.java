@@ -26,7 +26,7 @@ public class SwaggerConfig {
                 // 2. External Documentation (as requested)
                 .externalDocs(new ExternalDocumentation()
                         .description("Project GitHub Repository")
-                        .url("https://github.com/Balaji-V-S/LumaDesk")
+                        .url("https://github.com/Bala::ji-V-S/LumaDesk")
                 )
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName, new SecurityScheme()
