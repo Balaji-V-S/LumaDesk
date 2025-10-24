@@ -1,0 +1,14 @@
+package com.lumadesk.auth_service.entities;
+
+public enum URoles {
+    ROLE_CUSTOMER,
+    ROLE_SUPPORT_AGENT,
+    ROLE_TRIAGE_OFFICER,
+    ROLE_TECH_SUPPORT_ENGINEER,
+    ROLE_NOC_ENGINEER,
+    ROLE_FIELD_ENGINEER,
+    ROLE_TEAM_LEAD,
+    ROLE_MANAGER,
+    ROLE_NOC_ADMIN,
+    ROLE_CXO
+}

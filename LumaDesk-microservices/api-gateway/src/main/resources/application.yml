@@ -19,3 +19,10 @@ spring:
       enabled: false
 
       routes: []
+
+springdoc:
+  swagger-ui:
+    urls-primary-name: "LumaDesk-microservices"
+  api-docs:
+    groups:
+      enabled: true
