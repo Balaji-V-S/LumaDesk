@@ -14,10 +14,16 @@
     </properties>
 
     <modules>
+        <module>discovery-server</module>
+        <module>config-server</module>
         <module>api-gateway</module>
         <module>auth-service</module>
-        <module>config-server</module>
-        <module>discovery-server</module>
+        <module>user-service</module>
+        <module>ticket-service</module>
+        <module>feedback-service</module>
+        <module>notification-service</module>
+        <module>analytics-service</module>
+        <module>ai-agent-service</module>
     </modules>
     <dependencyManagement>
         <dependencies>
