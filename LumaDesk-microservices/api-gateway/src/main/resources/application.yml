@@ -43,7 +43,15 @@ springdoc:
     urls:
       - name: auth-service
         url: /auth-service/v3/api-docs
-#      - name: user-service
-#        url: /user-service/v3/api-docs
-#      - name: plan-service
-#        url: /plan-service/v3/api-docs: true
+      - name: user-service
+        url: /user-service/v3/api-docs
+      - name: ticket-service
+        url: /ticket-service/v3/api-docs
+      - name: feedback-service
+        url: /feedback-service/v3/api-docs
+      - name: notification-service
+        url: /notification-service/v3/api-docs
+      - name: analytics-service
+        url: /analytics-service/v3/api-docs
+      - name: ai-agent-service
+        url: /ai-agent-service/v3/api-docs
