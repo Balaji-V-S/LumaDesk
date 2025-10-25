@@ -5,6 +5,8 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
+      fetch-registry: true
+      register-with-eureka: true
 
 spring:
   application:
@@ -12,17 +14,36 @@ spring:
 
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true # Enables routing like "lb://auth-service"
-    config:
-      enabled: false
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+          routes:
+            - id: auth_service_route
+              uri: lb://auth-service
+              predicates:
+                - Path=/api/auth/**, /auth-service/v3/api-docs/**,/auth-service/swagger-ui/**,/auth-service/swagger-ui.html
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Headers, RETAIN_UNIQUE
 
-      routes: []
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  gateway:
+    enabled: true
 
 springdoc:
   swagger-ui:
-    urls-primary-name: "LumaDesk-microservices"
-  api-docs:
-    groups:
-      enabled: true
+    enabled: true
+    path: /swagger-ui.html
+    urls:
+      - name: auth-service
+        url: /auth-service/v3/api-docs
+#      - name: user-service
+#        url: /user-service/v3/api-docs
+#      - name: plan-service
+#        url: /plan-service/v3/api-docs: true
