@@ -25,6 +25,10 @@ spring:
               uri: lb://auth-service
               predicates:
                 - Path=/api/auth/**, /auth-service/v3/api-docs/**,/auth-service/swagger-ui/**,/auth-service/swagger-ui.html
+            - id: ai_agent_service_route
+              uri: lb://ai-agent-service
+              predicates:
+                - Path=/api/ai-agent/**, /ai-agent-service/v3/api-docs/**,/ai-agent-service/swagger-ui/**,/ai-agent-service/swagger-ui.html
           default-filters:
             - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Headers, RETAIN_UNIQUE
 
