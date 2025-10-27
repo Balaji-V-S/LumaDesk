@@ -1,11 +1,6 @@
 spring:
   application:
     name: ai-agent-service
-  ai:
-    vertexai:
-      project-id: lumadesk
-      location: us-central1
-      model: gemini-2.5-flash
 
 server:
   port: 0
@@ -17,3 +12,7 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
 
+langchain4j:
+  google-ai:
+    api-key: ${GEMINI_API_KEY}
+    model-name: gemini-2.5-flash
