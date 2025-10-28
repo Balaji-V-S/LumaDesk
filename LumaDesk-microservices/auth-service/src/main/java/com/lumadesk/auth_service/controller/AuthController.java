@@ -12,6 +12,7 @@ import org.slf4j.Logger; // Using SLF4J for logging
 import org.slf4j.LoggerFactory;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/auth") // Base path for all auth-related endpoints
 public class AuthController {
 

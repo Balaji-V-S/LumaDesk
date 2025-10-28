@@ -1,6 +1,7 @@
 package com.lumadesk.auth_service.security;
 
 import io.jsonwebtoken.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
@@ -9,8 +10,11 @@ import java.util.*;
 @Component
 public class JwtUtil {
 
-    private final String jwtSecret = "careerportal_secret_key_which_is_long_enough_12387614876192834769817364987162389476238974689237658976293846";
-    private final int jwtExpirationMs = 36000000;
+    @Value("${spring.application.secret-key}")
+    private String jwtSecret;
+
+    @Value("${spring.application.timeout}")
+    private int jwtExpirationMs;
 
     private Key getSigningKey() {
         byte[] keyBytes = jwtSecret.getBytes();
