@@ -21,6 +21,7 @@ public class AgentConfiguration {
         return GoogleAiGeminiChatModel.builder()
                 .apiKey(apiKey)
                 .modelName(modelName)
+                .temperature(0.3)
                 .responseFormat(ResponseFormat.TEXT)
                 .build();
     }

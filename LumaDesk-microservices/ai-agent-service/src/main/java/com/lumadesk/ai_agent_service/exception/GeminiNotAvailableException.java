@@ -8,8 +8,4 @@ public class GeminiNotAvailableException extends RuntimeException {
     public GeminiNotAvailableException(String message) {
         super(message);
     }
-
-    public GeminiNotAvailableException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }
