@@ -11,7 +11,7 @@ eureka:
 spring:
   application:
     name: api-gateway
-
+    secret-key: lumadesk_secret_key_which_is_long_enough_12387614876192834769817364987162389476238974689237658976293846
   cloud:
     gateway:
       server:
@@ -40,7 +40,7 @@ management:
   gateway:
     enabled: true
 
-springdoc:
+springdoc: #Swagger directly hits the microservice, not through API Gateway
   swagger-ui:
     enabled: true
     path: /swagger-ui.html

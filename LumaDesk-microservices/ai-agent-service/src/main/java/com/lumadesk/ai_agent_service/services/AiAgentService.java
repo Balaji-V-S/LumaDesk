@@ -48,7 +48,7 @@ public class AiAgentService {
     );
 
     public AgentResponse chatWithGemini(AgentRequest request) {
-        String outputInstructions="Output Instructions: Respond concisely and professionally. Your answer must be under 40 words. Do not exceed the word limit under any circumstance.";
+        String outputInstructions="Output Instructions: Respond concisely and professionally. , Your answer must be under 40 words. Do not exceed the word limit under any circumstance.";
         String systemMessage = PROMPT_TEMPLATES.getOrDefault(request.getRole(), "You are a virtual assistant.  ");
         String history = "";
         if (request.getPreviousContext() != null && !request.getPreviousContext().isEmpty()) {
@@ -61,7 +61,7 @@ public class AiAgentService {
             String newContext =history + (history.isEmpty()? "" : "\n") + "User: " + request.getQuery() + "\nAI: " + answer;
             return new AgentResponse(newContext, answer);
         } catch (Exception e) {
-            throw new GeminiNotAvailableException("Error communicating with Gemini model", e);
+            throw new GeminiNotAvailableException("Error communicating with Gemini model. Cause: "+e);
         }
     }
 
@@ -74,7 +74,7 @@ public class AiAgentService {
                 return "Gemini model responded with empty content.";
             }
         } catch (Exception e) {
-            throw new GeminiNotAvailableException("Error connecting to Gemini model", e);
+            throw new GeminiNotAvailableException("Error connecting to Gemini model. Cause: "+e);
         }
     }
 }
