@@ -26,5 +26,5 @@ public class Users {
     private URoles role;
 
     @Column(nullable = false)
-    private String name;
+    private String fullName;
 }

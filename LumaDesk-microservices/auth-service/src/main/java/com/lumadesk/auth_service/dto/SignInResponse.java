@@ -1,13 +1,13 @@
 package com.lumadesk.auth_service.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-@Setter
-@Getter
+@Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class SignInResponse {
-    private String accessToken;
-    private String tokenType;
+    private String token;
+    private Long userId;
     private String role;
+    private String fullName;
 }
