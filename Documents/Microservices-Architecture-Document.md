@@ -1,7 +1,7 @@
 # LumaDesk - High-Level Design Document
 
 **Project Name:** LumaDesk  
-**Version:** 1.0  
+**Version:** 1.1
 **Date:** October 20, 2025  
 
 ## Objective
@@ -33,79 +33,190 @@ LumaDesk will be built using a **microservices architecture**. This approach dec
 
 ---
 
-## 2. Core Components & Responsibilities
-The system is divided into two primary categories of services:
 
-### 2.1. Infrastructure Services
-These services provide the foundational support for the architecture.
+## 2.2. Data Architecture
 
-- **API Gateway:**  
-  The single point of entry for all client requests. Responsible for request routing, authentication (by calling the Auth Service), and rate limiting.
+The system strictly follows the **Database-per-Service** pattern. There is no shared database.
 
-- **Discovery Server:**  
-  A "phone book" (using Eureka) that allows services to find and communicate with each other dynamically without hardcoded addresses.
-
-- **Config Server (Future Scope):**  
-  A central server to manage configuration for all services. For the capstone, configuration will be managed in each service's local `application.properties` file.
-
-### 2.2. Application Services (Lean MVP Set)
-These services contain the core business logic of LumaDesk.
-
-- **User & Auth Service:**  
-  Manages user identity, roles, permissions, and is responsible for issuing and validating JWTs.
-
-- **Ticket Service:**  
-  The heart of the application. Handles the complete lifecycle of tickets, including creation, status updates, and comments. The heart of the application. Handles the complete lifecycle of tickets, including creation, status updates, and comments. For the initial build, it also contains the internal business logic for applying SLA policies and routing tickets to the correct initial queue.
-
-  It also makes two synchronous, internal REST calls (via Feign):  
-  - Calls the **AI Service** to get a suggestion for the ticket's category.  
-  - Calls the **Notification Service** to send a "ticket received" confirmation email.
-
-- **AI Service:**  
-  A dedicated service that acts as a wrapper for calls to external Generative AI models for tasks like suggesting resolutions.
-
-- **Analytics & Reporting Service:**  
-  Responsible for aggregating data for dashboards and reports. Operates in the background to avoid impacting live performance.
-
-- **Notification Service:**  
-  A single-responsibility service for sending all user communications (e.g., emails).
+| Service | Database |
+|----------|-----------|
+| auth-service | lumadesk_auth_db |
+| user-service | lumadesk_user_db |
+| ticket-service | lumadesk_ticket_db |
+| feedback-service | lumadesk_feedback_db |
+| notification-service | lumadesk_notify_db |
+| analytics-service | lumadesk_analytics_db (Read-optimized) |
+| ai-agent-service | Redis (Cache) |
 
 ---
 
-## 3. End-to-End Lifecycle Flows
+## 3. Infrastructure Services
 
-### 3.1. Flow: User Authentication
-1. Client sends username/password to the API Gateway.  
-2. Gateway routes the request to the User & Auth Service.  
-3. User & Auth Service validates credentials against its database, generates a JWT, and returns it.  
-4. The JWT is sent back through the Gateway to the Client, which stores it for future requests.
+### 3.1. API Gateway
 
-### 3.2. Flow: New Ticket Creation
-1. A logged-in Client sends a "create ticket" request with their JWT to the API Gateway.
+**Purpose:** The single, secure entry point for all client requests.
 
-2. The Gateway intercepts the request, validates the JWT with the User & Auth Service, and upon success, routes the request to the Ticket Service.
+**Responsibilities:**
+- **Request Routing:** Maps public API paths (e.g., `/api/tickets/**`) to the correct internal service (e.g., ticket-service) using service discovery.
+- **JWT Validation (Global Filter):** Validates Authorization header's JWT using the shared JWT_SECRET.
+- **Public Route Bypassing:** Maintains a "public" list (e.g., `/api/auth/login`, `/api/auth/register`) that bypasses validation.
+- **Header Enrichment:** Extracts `userId` and `role` from the token and forwards them as headers (`X-User-Id`, `X-User-Roles`).
+- **CORS & Rate Limiting:** Manages CORS policies and protects from floods.
 
-3. The Ticket Service receives the request and creates a new ticket record in the database with a "New" status.
+### 3.2. Discovery Server (Eureka)
 
-4. The Ticket Service then immediately applies its internal business logic:
+**Purpose:** Dynamic registry of all active microservice instances.
 
-- SLA Application: It determines the ticket's priority and assigns the corresponding SLA (e.g., sets a resolve_by timestamp).
+**Responsibilities:**
+- **Registration:** All services register with Eureka at startup.
+- **Heartbeating:** Periodic alive signal.
+- **Discovery:** Gateway & Feign clients resolve service addresses.
 
-- Routing Logic: It determines the correct initial assignment queue (e.g., "L1 Support Queue") and updates the ticket. 
+### 3.3. Config Server
 
-5. The Ticket Service then makes two synchronous, internal REST calls (via Feign):
+**Purpose:** Centralized configuration management.
 
-- It calls the AI Service to get a suggestion for the ticket's category.
-- It calls the Notification Service to send a "ticket received" confirmation email.
-
-6. The Ticket Service returns the new Ticket ID in a response back through the Gateway to the Client.
+**Responsibilities:**
+- **Serve Configuration:** Provides environment-specific configs (DB URLs, JWT_SECRET, etc.).
+- **Central Management:** Maintains configs in a Git repo.
 
 ---
 
-## 4. Data & Logging Strategy (for Capstone Project)
+## 4. Application Services (Detailed)
 
-- **Database:**  
-  A single MySQL instance will be used. The architecture will follow a "Shared Database, Separate Tables" pattern. Each service is the sole owner of its tables (e.g., user-auth-service owns the users table).
+### 4.1. auth-service (The Gatekeeper)
+
+**Purpose:** Manages identity, authentication, and roles.
+
+**Database:** `lumadesk_auth_db`  
+**Table:** `users (user_id, email, password_hash, role, account_status)`
+
+**Core Responsibilities:**
+- `POST /api/auth/register` – Validates input, hashes password, saves user, and creates profile in user-service.
+- `POST /api/auth/login` – Validates credentials and returns JWT.
+- `PUT /api/auth/users/{userId}/role` – Admin role update.
+
+**Key Interactions:**
+- Calls: `user-service`
+- Called By: `api-gateway`
+
+---
+
+### 4.2. user-service (The Profile Warehouse)
+
+**Purpose:** Manages user profile data.
+
+**Database:** `lumadesk_user_db`  
+**Table:** `profiles (user_id, name, email, phone, address, employee_id, team_id)`
+
+**Core Responsibilities:**
+- `POST /internal/api/users` – Called by auth-service to create a user profile.
+- `GET /api/users/me` – Returns user profile.
+- `PUT /api/users/me` – Updates profile details.
+
+**Key Interactions:**
+- Called By: `auth-service`, `gateway`
+
+---
+
+### 4.3. ticket-service (The Core Engine)
+
+**Purpose:** Handles the entire ticket lifecycle.
+
+**Database:** `lumadesk_ticket_db`  
+**Tables:** `tickets`, `ticket_comments`, `ticket_assignment_logs`
+
+**Core Responsibilities:**
+- Create, update, triage, assign, and manage ticket lifecycle.
+- Logs ticket assignment history.
+- Adds comments to tickets.
+
+**Key Interactions:**
+- Calls: `ai-agent-service`, `notification-service`
+- Called By: `gateway`
+
+---
+
+### 4.4. feedback-service (The Suggestion Box)
+
+**Purpose:** Manages customer feedback for resolved tickets.
+
+**Database:** `lumadesk_feedback_db`
+
+**Core Responsibilities:**
+- `POST /api/feedback` – Submits feedback (1 per ticket).
+- `GET /api/feedback` – Retrieves feedback.
+
+**Key Interactions:**
+- Calls: `ticket-service`
+- Called By: `gateway`, `analytics-service`
+
+---
+
+### 4.5. notification-service (The Messenger)
+
+**Purpose:** Handles all outgoing communications.
+
+**Database:** `lumadesk_notify_db`
+
+**Core Responsibilities:**
+- `POST /api/notify/email` – Sends email notifications.
+- `POST /api/notify/sms` – Sends SMS via external provider.
+
+**Key Interactions:**
+- Called By: `auth-service`, `ticket-service`, `feedback-service`
+
+---
+
+### 4.6. analytics-service (The Report Generator)
+
+**Purpose:** Provides aggregated data and reports.
+
+**Database:** `lumadesk_analytics_db` (Read-optimized)
+
+**Core Responsibilities:**
+- Periodic ETL job imports from `ticket-service` and `feedback-service`.
+- Provides analytics endpoints (SLA rate, trends, heatmaps).
+
+**Key Interactions:**
+- Calls: `ticket-service`, `feedback-service`
+- Called By: `gateway`
+
+---
+
+### 4.7. ai-agent-service (The AI Translator)
+
+**Purpose:** Isolates external AI APIs and caches responses.
+
+**Cache:** `Redis`
+
+**Core Responsibilities:**
+- Suggest triage and resolution using external AI.
+- Caches responses to minimize latency and cost.
+
+**Key Interactions:**
+- Calls: External AI APIs
+- Called By: `ticket-service`
+
+---
+
+## 5. Key End-to-End Flows
+
+### 5.1. Flow: User Registration
+
+1. Client → `POST /api/auth/register`
+2. Gateway → Routes to auth-service (JWT bypassed).
+3. auth-service → Saves to DB and calls user-service to create profile.
+4. user-service → Saves to `lumadesk_user_db`.
+5. auth-service → Returns 201 → Gateway → Client.
+
+### 5.2. Flow: Authenticated Request (Create Ticket)
+
+1. Client → `POST /api/tickets` (with JWT).
+2. Gateway → Validates JWT and enriches headers.
+3. ticket-service → Saves ticket, calls notification-service.
+4. ticket-service → Returns 201 → Gateway → Client.
+
 
 - **Logging:**  
   Centralized logging will be achieved without ELK. Each of the 8 services will have its own `logback-spring.xml` file configured to write logs to a single, shared file (e.g., `lumadesk-central.log`). The service name will be included in each log line for easy tracing.
