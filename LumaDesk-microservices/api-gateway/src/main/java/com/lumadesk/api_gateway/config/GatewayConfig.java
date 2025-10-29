@@ -19,10 +19,11 @@ public class GatewayConfig {
                 .route("auth-service", r -> r.path("/api/auth/**")
                         .uri("lb://auth-service"))
 
-                .route("user-service", r -> r.path("/api/users/**")
+                .route("user-service", r -> r.path("/api/users/**") //didn't add /internal/api/users/** coz don't want to expose feign endpoint to client
                         .filters(f -> f.filter(filter))
                         .uri("lb://user-service"))
-                
+
+
                 .route("ai-agent-service", r -> r.path("/api/ai-agent/**")
                         .filters(f -> f.filter(filter))
                         .uri("lb://ai-agent-service"))

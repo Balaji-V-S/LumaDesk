@@ -1,7 +1,7 @@
 package com.lumadesk.auth_service.controller;
 
 import com.lumadesk.auth_service.dto.*;
-import com.lumadesk.auth_service.service.AuthService;
+import com.lumadesk.auth_service.service.AuthServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ public class AuthController {
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
-    private AuthService authService;
+    private AuthServiceImpl authService;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody SignInRequest loginRequest) {

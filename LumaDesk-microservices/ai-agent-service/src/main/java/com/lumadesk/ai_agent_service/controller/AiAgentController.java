@@ -2,7 +2,7 @@ package com.lumadesk.ai_agent_service.controller;
 
 import com.lumadesk.ai_agent_service.dto.AgentRequest;
 import com.lumadesk.ai_agent_service.dto.AgentResponse;
-import com.lumadesk.ai_agent_service.services.AiAgentService;
+import com.lumadesk.ai_agent_service.services.AiAgentServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/ai-agent")
 public class AiAgentController {
     @Autowired
-    private AiAgentService geminiChatService;
+    private AiAgentServiceImpl geminiChatService;
 
     @GetMapping("/health") //check the availability of the service
     public String checkHealth() {
