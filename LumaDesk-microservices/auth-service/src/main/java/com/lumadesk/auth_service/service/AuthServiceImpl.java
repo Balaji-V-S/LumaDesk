@@ -62,8 +62,7 @@ public class AuthServiceImpl implements AuthService{
                     signUpRequest.getEmail(),
                     signUpRequest.getPhoneNumber(),
                     signUpRequest.getAddress(),
-                    signUpRequest.getPinCode(),
-                    LocalDateTime.now()
+                    signUpRequest.getPinCode()
             );
             userClient.createUserProfile(userCreationRequest);
             log.info("Successfully created profile in user-service for user ID: {}", savedUser.getId());

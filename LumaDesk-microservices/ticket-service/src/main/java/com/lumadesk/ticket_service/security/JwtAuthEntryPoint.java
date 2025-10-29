@@ -1,4 +1,4 @@
-package com.lumadesk.user_service.security;
+package com.lumadesk.ticket_service.security;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

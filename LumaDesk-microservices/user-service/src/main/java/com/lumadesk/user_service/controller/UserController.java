@@ -6,7 +6,6 @@ import com.lumadesk.user_service.service.UserServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,7 +26,6 @@ public class UserController {
     }
 
     @PutMapping("/api/users/change-address")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserProfile> updateMyAddress(@Valid @RequestBody UpdateAddressRequest updateAddressrequest) {
         UserProfile updatedProfile = userService.updateAddress(updateAddressrequest);
         return ResponseEntity.ok(updatedProfile);

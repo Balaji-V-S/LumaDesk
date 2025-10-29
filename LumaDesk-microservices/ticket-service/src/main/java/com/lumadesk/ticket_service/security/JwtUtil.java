@@ -1,4 +1,4 @@
-package com.lumadesk.user_service.security;
+package com.lumadesk.ticket_service.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;

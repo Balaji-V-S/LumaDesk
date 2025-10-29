@@ -1,4 +1,4 @@
-package com.lumadesk.user_service.config;
+package com.lumadesk.ticket_service.config;
 
 import com.lumadesk.user_service.security.JwtAuthEntryPoint;
 import com.lumadesk.user_service.security.JwtAuthRequestFilter;

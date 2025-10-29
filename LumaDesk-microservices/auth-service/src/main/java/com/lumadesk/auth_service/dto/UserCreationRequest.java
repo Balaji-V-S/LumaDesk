@@ -16,5 +16,4 @@ public class UserCreationRequest {
     private String phoneNumber;
     private String address;
     private String pinCode;
-    private LocalDateTime createdAt;
 }

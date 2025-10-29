@@ -1,4 +1,4 @@
-package com.lumadesk.user_service.security; // Or wherever you put your security filters
+package com.lumadesk.ticket_service.security; // Or wherever you put your security filters
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
