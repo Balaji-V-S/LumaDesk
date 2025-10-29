@@ -1,4 +1,5 @@
 package com.lumadesk.auth_service.dto;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -6,13 +7,14 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class SignUpRequest {
-    private String email;
-    private String password;
+@AllArgsConstructor
+public class UserCreationRequest {
+    private Long userId;
     private String fullName;
+    private String email;
     private String phoneNumber;
     private String address;
     private String pinCode;
+    private LocalDateTime createdAt;
 }
