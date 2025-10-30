@@ -5,16 +5,16 @@ import com.lumadesk.ticket_service.dto.CustTicketCreationRequest;
 import com.lumadesk.ticket_service.entities.Ticket;
 import com.lumadesk.ticket_service.service.TicketService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 @RequestMapping("/api/raise-tickets")
 public class TicketController {
 
-    @Autowired
     private TicketService ticketService;
 
     @PostMapping("/customer")

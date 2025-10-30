@@ -5,7 +5,7 @@ import com.lumadesk.ticket_service.dto.IssueCategoryUpdationRequest;
 import com.lumadesk.ticket_service.entities.IssueCategory;
 import com.lumadesk.ticket_service.service.IssueCategoryService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +14,9 @@ import java.util.List;
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/api/issue-categories")
+@RequiredArgsConstructor
 public class IssueCategoryController {
 
-    @Autowired
     private IssueCategoryService issueCategoryService;
 
     @PostMapping("/create")

@@ -5,7 +5,7 @@ import com.lumadesk.ticket_service.dto.SLAUpdationRequest;
 import com.lumadesk.ticket_service.entities.SLA;
 import com.lumadesk.ticket_service.service.SLAService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,9 +14,9 @@ import java.util.List;
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/api/sla")
+@RequiredArgsConstructor
 public class SLAController {
 
-    @Autowired
     private SLAService slaService;
 
     @PostMapping("/create")
@@ -44,8 +44,8 @@ public class SLAController {
     }
 
     @DeleteMapping("/delete/{slaId}")
-    public ResponseEntity<Void> deleteSLA(@PathVariable Long slaId) {
+    public ResponseEntity<String> deleteSLA(@PathVariable Long slaId) {
         slaService.deleteSLA(slaId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("SLA deleted successfully");
     }
 }
