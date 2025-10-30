@@ -1,6 +1,7 @@
 package com.lumadesk.api_gateway.config;
 
 import com.lumadesk.api_gateway.security.AuthenticationFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
@@ -12,9 +13,9 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 
 @Configuration
+@RequiredArgsConstructor
 public class GatewayConfig {
 
-    @Autowired
     private AuthenticationFilter filter;
 
     @Bean

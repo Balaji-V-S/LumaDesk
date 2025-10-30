@@ -1,7 +1,6 @@
 package com.lumadesk.ticket_service.controller;
 
-import com.lumadesk.ticket_service.dto.AgentTicketCreationRequest;
-import com.lumadesk.ticket_service.dto.CustTicketCreationRequest;
+import com.lumadesk.ticket_service.dto.UpdateStatusRequest;
 import com.lumadesk.ticket_service.entities.Ticket;
 import com.lumadesk.ticket_service.service.TicketService;
 import jakarta.validation.Valid;
@@ -9,23 +8,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins="*")
+@RequestMapping("/api/tickets")
 @RequiredArgsConstructor
-@RequestMapping("/api/raise-tickets")
 public class TicketController {
 
-    private TicketService ticketService;
+    private final TicketService ticketService;
 
-    @PostMapping("/customer")
-    public ResponseEntity<Ticket> createTicketByCustomer(@Valid @RequestBody CustTicketCreationRequest request) {
-        Ticket createdTicket = ticketService.createTicketByCustomer(request);
-        return ResponseEntity.ok(createdTicket);
+    @GetMapping("/get/{customerId}")
+    public ResponseEntity<List<Ticket>> getTicketsByCustId(@PathVariable Long customerId){
+        List<Ticket> customerTickets=ticketService.getTicketsByCustomerId(customerId);
+        return ResponseEntity.ok(customerTickets);
     }
 
-    @PostMapping("/agent")
-    public ResponseEntity<Ticket> createTicketByAgent(@Valid @RequestBody AgentTicketCreationRequest request) {
-        Ticket createdTicket = ticketService.createTicketByAgent(request);
-        return ResponseEntity.ok(createdTicket);
+    @PutMapping("/update-status")
+    public ResponseEntity<String> updateTicketStatus(@Valid @RequestBody UpdateStatusRequest request)  {
+        String response=ticketService.updateTicketStatus(request);
+        return ResponseEntity.ok(response);
     }
 }
