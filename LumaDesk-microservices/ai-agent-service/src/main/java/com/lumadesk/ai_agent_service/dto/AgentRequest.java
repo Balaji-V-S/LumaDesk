@@ -1,9 +1,11 @@
 package com.lumadesk.ai_agent_service.dto;
 
-import jakarta.annotation.Nullable;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class AgentRequest {
     private String role;
     private String previousContext;

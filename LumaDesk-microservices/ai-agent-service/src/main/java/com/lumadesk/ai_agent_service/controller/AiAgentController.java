@@ -3,6 +3,7 @@ package com.lumadesk.ai_agent_service.controller;
 import com.lumadesk.ai_agent_service.dto.AgentRequest;
 import com.lumadesk.ai_agent_service.dto.AgentResponse;
 import com.lumadesk.ai_agent_service.services.AiAgentServiceImpl;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ public class AiAgentController {
     }
 
     @PostMapping("/")
-    public AgentResponse chat(@RequestBody AgentRequest request) {
+    public AgentResponse chat(@Valid @RequestBody AgentRequest request) {
         return geminiChatService.chatWithGemini(request);
     }
 }

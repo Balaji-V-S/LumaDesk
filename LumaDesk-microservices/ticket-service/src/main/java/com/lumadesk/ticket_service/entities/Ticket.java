@@ -34,6 +34,10 @@ public class Ticket {
     @Column(nullable = false)
     private Long createdFor; // User ID, same as createdBy if self-reported
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "issue_category_id")
+    private IssueCategory issueCategory;
+
     @NotBlank(message = "Issue description must not be blank")
     @Column(nullable = false, columnDefinition = "TEXT")
     private String issueDescription;
@@ -49,11 +53,7 @@ public class Ticket {
     @Enumerated(EnumType.STRING)
     private TicketPriority priority;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "issue_category_id")
-    private IssueCategory issueCategory;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sla_id")
     private SLA sla;
 

@@ -25,6 +25,14 @@ spring:
               uri: lb://auth-service
               predicates:
                 - Path=/api/auth/**, /auth-service/v3/api-docs/**,/auth-service/swagger-ui/**,/auth-service/swagger-ui.html
+            - id: user_service_route
+              uri: lb://user-service
+              predicates:
+                - Path=/api/users/**, /user-service/v3/api-docs/**,/user-service/swagger-ui/**,/user-service/swagger-ui.html
+            - id: ticket_service_route
+              uri: lb://ticket-service
+              predicates:
+                - Path=/api/raise-tickets/**,/api/sla/**,/api/issue-categories/**,/ticket-service/v3/api-docs/**,/ticket-service/swagger-ui/**,/ticket-service/swagger-ui.html
             - id: ai_agent_service_route
               uri: lb://ai-agent-service
               predicates:

@@ -49,7 +49,7 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/change-password")
+    @PostMapping("/reset-password")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
         log.info("Attempting to change password for user: {}", changePasswordRequest.getEmail());

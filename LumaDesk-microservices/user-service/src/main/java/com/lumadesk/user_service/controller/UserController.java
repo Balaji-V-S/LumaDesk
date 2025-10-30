@@ -15,10 +15,7 @@ public class UserController {
     @Autowired
     private UserServiceImpl userService;
 
-    /**
-     * This is an internal endpoint called only by the auth-service during registration.
-     * It should not be exposed through the API Gateway.
-     */
+
     @PostMapping("/internal/api/users/create-user-profile")
     public ResponseEntity<UserProfile> createUserProfile(@Valid @RequestBody UserProfile userProfile) {
         UserProfile createdProfile = userService.createUserProfile(userProfile);
