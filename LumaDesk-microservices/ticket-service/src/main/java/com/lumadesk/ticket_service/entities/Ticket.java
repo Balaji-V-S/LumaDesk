@@ -4,6 +4,9 @@ import com.lumadesk.ticket_service.entities.enums.TicketPriority;
 import com.lumadesk.ticket_service.entities.enums.TicketSeverity;
 import com.lumadesk.ticket_service.entities.enums.TicketStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -21,16 +24,22 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long ticketId;
 
+    @NotNull(message = "CreatedBy (user ID) must not be null")
+    @Positive(message = "CreatedBy (user ID) must be a positive number")
     @Column(nullable = false)
     private Long createdBy; // User ID from auth-service
 
+    @NotNull(message = "CreatedFor (user ID) must not be null")
+    @Positive(message = "CreatedFor (user ID) must be a positive number")
     @Column(nullable = false)
     private Long createdFor; // User ID, same as createdBy if self-reported
 
+    @NotBlank(message = "Issue description must not be blank")
     @Column(nullable = false, columnDefinition = "TEXT")
     private String issueDescription;
 
     @Enumerated(EnumType.STRING)
+    @NotNull(message = "Ticket status must not be null")
     @Column(nullable = false)
     private TicketStatus status;
 
@@ -48,7 +57,8 @@ public class Ticket {
     @JoinColumn(name = "sla_id")
     private SLA sla;
 
-    private Long assignedTo; // User ID of the resolver
+    @Positive(message = "AssignedTo (resolver ID) must be a positive number")
+    private Long assignedTo; // ID of the resolver
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
