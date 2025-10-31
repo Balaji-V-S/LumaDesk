@@ -1,5 +1,4 @@
-package com.lumadesk.api_gateway.config;
-
+package com.lumadesk.feedback_service.configuration;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -10,9 +9,9 @@ import io.swagger.v3.oas.annotations.servers.Server;
 
 @OpenAPIDefinition(
         info = @Info(
-                title = "LumaDesk API Gateway API",
+                title = "LumaDesk Feedback Service API",
                 version = "1.0",
-                description = "API Gateway Docs",
+                description = "REST API for managing feedback messages",
 
                 license = @License(
                         name = "Apache 2.0",

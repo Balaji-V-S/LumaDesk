@@ -1,5 +1,4 @@
-package com.lumadesk.api_gateway.config;
-
+package com.lumadesk.analytics_service.configuration;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -10,9 +9,9 @@ import io.swagger.v3.oas.annotations.servers.Server;
 
 @OpenAPIDefinition(
         info = @Info(
-                title = "LumaDesk API Gateway API",
+                title = "LumaDesk Analytics Service API",
                 version = "1.0",
-                description = "API Gateway Docs",
+                description = "REST API for managing analytics for managers, CXO and NOC admin",
 
                 license = @License(
                         name = "Apache 2.0",
@@ -34,3 +33,4 @@ import io.swagger.v3.oas.annotations.servers.Server;
 )
 public class SwaggerConfig {
 }
+

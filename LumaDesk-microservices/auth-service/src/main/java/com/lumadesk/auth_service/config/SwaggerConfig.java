@@ -1,5 +1,4 @@
-package com.lumadesk.api_gateway.config;
-
+package com.lumadesk.auth_service.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -10,9 +9,9 @@ import io.swagger.v3.oas.annotations.servers.Server;
 
 @OpenAPIDefinition(
         info = @Info(
-                title = "LumaDesk API Gateway API",
+                title = "LumaDesk Authentication Service API",
                 version = "1.0",
-                description = "API Gateway Docs",
+                description = "REST API for managing user authentication, registration, and profiles.",
 
                 license = @License(
                         name = "Apache 2.0",

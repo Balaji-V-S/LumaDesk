@@ -16,3 +16,10 @@ langchain4j:
   google-ai:
     api-key: ${GEMINI_API_KEY}
     model-name: gemini-2.5-flash-lite
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
