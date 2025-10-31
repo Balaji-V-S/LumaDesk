@@ -7,15 +7,14 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserProfile {
@@ -40,6 +39,9 @@ public class UserProfile {
 
     @Size(max = 255, message = "Address must not exceed 255 characters")
     private String address;
+
+    @Size(max = 25, message = "Area must not exceed 25 characters")
+    private String area;
 
     @Pattern(
             regexp = "^[0-9]{5,6}$",

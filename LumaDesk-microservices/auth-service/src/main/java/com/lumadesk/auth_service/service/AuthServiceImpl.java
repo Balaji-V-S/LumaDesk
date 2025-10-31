@@ -62,6 +62,7 @@ public class AuthServiceImpl implements AuthService{
                     signUpRequest.getEmail(),
                     signUpRequest.getPhoneNumber(),
                     signUpRequest.getAddress(),
+                    signUpRequest.getArea(),
                     signUpRequest.getPinCode()
             );
             userClient.createUserProfile(userCreationRequest);

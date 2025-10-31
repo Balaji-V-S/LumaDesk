@@ -14,5 +14,6 @@ public class SignUpRequest {
     private String fullName;
     private String phoneNumber;
     private String address;
+    private String area;
     private String pinCode;
 }

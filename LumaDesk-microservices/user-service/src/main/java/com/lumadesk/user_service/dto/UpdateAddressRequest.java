@@ -6,5 +6,6 @@ import lombok.Data;
 public class UpdateAddressRequest {
     private Long userId;
     private String address;
+    private String area;
     private String pinCode;
 }

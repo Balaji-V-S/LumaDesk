@@ -4,15 +4,15 @@ import com.lumadesk.user_service.dto.UpdateAddressRequest;
 import com.lumadesk.user_service.entities.UserProfile;
 import com.lumadesk.user_service.exception.UserProfileNotFoundException;
 import com.lumadesk.user_service.repository.UserProfileRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
 
-    @Autowired
-    private UserProfileRepository userProfileRepository;
+    private final UserProfileRepository userProfileRepository;
 
     @Transactional
     public UserProfile createUserProfile(UserProfile userProfile) {
@@ -24,6 +24,7 @@ public class UserServiceImpl implements UserService{
         UserProfile userProfile = userProfileRepository.findById(request.getUserId())
                 .orElseThrow(() -> new UserProfileNotFoundException("User profile not found"));
         userProfile.setAddress(request.getAddress());
+        userProfile.setArea(request.getArea());
         userProfile.setPinCode(request.getPinCode());
         return userProfileRepository.save(userProfile);
     }

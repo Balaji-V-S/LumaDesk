@@ -15,5 +15,6 @@ public class UserCreationRequest {
     private String email;
     private String phoneNumber;
     private String address;
+    private String area;
     private String pinCode;
 }

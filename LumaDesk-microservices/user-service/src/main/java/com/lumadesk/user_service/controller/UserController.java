@@ -4,16 +4,15 @@ import com.lumadesk.user_service.dto.UpdateAddressRequest;
 import com.lumadesk.user_service.entities.UserProfile;
 import com.lumadesk.user_service.service.UserServiceImpl;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private UserServiceImpl userService;
-
+    private final UserServiceImpl userService;
 
     @PostMapping("/internal/api/users/create-user-profile")
     public ResponseEntity<UserProfile> createUserProfile(@Valid @RequestBody UserProfile userProfile) {
