@@ -1,9 +1,6 @@
 package com.lumadesk.ticket_service.service;
 
-import com.lumadesk.ticket_service.dto.AgentTicketCreationRequest;
-import com.lumadesk.ticket_service.dto.AssignTicketRequest;
-import com.lumadesk.ticket_service.dto.UpdateStatusRequest;
-import com.lumadesk.ticket_service.dto.CustTicketCreationRequest;
+import com.lumadesk.ticket_service.dto.*;
 import com.lumadesk.ticket_service.entities.Ticket;
 import java.util.List;
 
@@ -12,5 +9,10 @@ public interface TicketService {
     Ticket createTicketByAgent(AgentTicketCreationRequest request);
     List<Ticket> getTicketsByCustomerId(Long custId);
     String updateTicketStatus(UpdateStatusRequest request);
-    Ticket assignTicketToAgent(AssignTicketRequest request);
+    Ticket assignTicketToEngineer(AssignTicketRequest request);
+    Ticket reassignTicket(ReassignTicketRequest request);
+    Ticket openTicket(OpenTicketRequest request);
+    Ticket resolveTicket(ResolveTicketRequest request);
+    Ticket holdTicket(HoldTicketRequest request);
+    Ticket closeTicket(CloseTicketRequest request);
 }

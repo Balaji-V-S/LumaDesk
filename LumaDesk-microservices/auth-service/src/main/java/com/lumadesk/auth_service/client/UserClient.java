@@ -18,9 +18,6 @@ public class UserClient {
         this.webClient = builder.baseUrl("http://user-service").build();
     }
 
-    /**
-     * Creates a user profile by calling the user-service through Eureka discovery.
-     */
     public void createUserProfile(UserCreationRequest request) {
         webClient.post()
                 .uri("/internal/api/users/create-user-profile")

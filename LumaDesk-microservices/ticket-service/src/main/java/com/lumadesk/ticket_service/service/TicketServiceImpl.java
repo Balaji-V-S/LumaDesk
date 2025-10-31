@@ -1,19 +1,20 @@
 package com.lumadesk.ticket_service.service;
 
-import com.lumadesk.ticket_service.dto.AgentTicketCreationRequest;
-import com.lumadesk.ticket_service.dto.AssignTicketRequest;
-import com.lumadesk.ticket_service.dto.UpdateStatusRequest;
-import com.lumadesk.ticket_service.dto.CustTicketCreationRequest;
+import com.lumadesk.ticket_service.client.FeedbackServiceClient;
+import com.lumadesk.ticket_service.dto.*;
 import com.lumadesk.ticket_service.entities.AssignmentLog;
 import com.lumadesk.ticket_service.entities.Ticket;
+import com.lumadesk.ticket_service.entities.TicketActionLog;
 import com.lumadesk.ticket_service.entities.enums.TicketStatus;
 import com.lumadesk.ticket_service.exception.ResourceNotFoundException;
 import com.lumadesk.ticket_service.repository.AssignmentLogRepository;
 import com.lumadesk.ticket_service.repository.IssueCategoryRepository;
+import com.lumadesk.ticket_service.repository.TicketActionLogRepository;
 import com.lumadesk.ticket_service.repository.TicketRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
@@ -23,6 +24,8 @@ public class TicketServiceImpl implements TicketService {
     private final TicketRepository ticketRepository;
     private final IssueCategoryRepository issueCategoryRepository;
     private final AssignmentLogRepository assignmentLogRepository;
+    private final TicketActionLogRepository ticketActionLogRepository;
+    private final FeedbackServiceClient feedbackServiceClient;
 
     @Override
     @Transactional
@@ -67,7 +70,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     @Transactional
-    public Ticket assignTicketToAgent(AssignTicketRequest request) {
+    public Ticket assignTicketToEngineer(AssignTicketRequest request) {
         Ticket ticket = ticketRepository.findById(request.getTicketId())
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + request.getTicketId()));
         ticket.setAssignedTo(request.getAssignedTo());
@@ -78,6 +81,122 @@ public class TicketServiceImpl implements TicketService {
         log.setAssignedTo(request.getAssignedTo());
         log.setAssignedBy(request.getAssignedBy());
         assignmentLogRepository.save(log);
+        return updatedTicket;
+    }
+
+    @Override
+    @Transactional
+    public Ticket reassignTicket(ReassignTicketRequest request) {
+        Ticket ticket = ticketRepository.findById(request.getTicketId())
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + request.getTicketId()));
+
+        Long oldAssignee = ticket.getAssignedTo();
+        ticket.setAssignedTo(request.getNewAssignedToId());
+        // The status remains ASSIGNED
+        Ticket updatedTicket = ticketRepository.save(ticket);
+
+        // Create an AssignmentLog for the new assignment
+        AssignmentLog assignmentLog = new AssignmentLog();
+        assignmentLog.setTicket(updatedTicket);
+        assignmentLog.setAssignedTo(request.getNewAssignedToId());
+        assignmentLog.setAssignedBy(request.getReassignedById());
+        assignmentLogRepository.save(assignmentLog);
+
+        // Create a TicketActionLog to record the reassignment action
+        TicketActionLog actionLog = new TicketActionLog();
+        actionLog.setTicket(updatedTicket);
+        actionLog.setUpdatedBy(request.getReassignedById());
+        actionLog.setStatus(ticket.getStatus()); // Status at the time of action
+        actionLog.setActionNote("Ticket reassigned from user " + oldAssignee + " to user " + request.getNewAssignedToId());
+        ticketActionLogRepository.save(actionLog);
+
+        return updatedTicket;
+    }
+
+    @Override
+    @Transactional
+    public Ticket openTicket(OpenTicketRequest request) {
+        Ticket ticket = ticketRepository.findById(request.getTicketId())
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + request.getTicketId()));
+
+        ticket.setStatus(TicketStatus.IN_PROGRESS);
+        Ticket updatedTicket = ticketRepository.save(ticket);
+
+        TicketActionLog actionLog = new TicketActionLog();
+        actionLog.setTicket(updatedTicket);
+        actionLog.setUpdatedBy(request.getEngineerId());
+        actionLog.setStatus(TicketStatus.IN_PROGRESS);
+        actionLog.setActionNote("Ticket opened by engineer.");
+        ticketActionLogRepository.save(actionLog);
+
+        return updatedTicket;
+    }
+
+    @Override
+    @Transactional
+    public Ticket resolveTicket(ResolveTicketRequest request) {
+        Ticket ticket = ticketRepository.findById(request.getTicketId())
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + request.getTicketId()));
+
+        ticket.setStatus(TicketStatus.RESOLVED);
+        Ticket updatedTicket = ticketRepository.save(ticket);
+
+        TicketActionLog actionLog = new TicketActionLog();
+        actionLog.setTicket(updatedTicket);
+        actionLog.setUpdatedBy(request.getEngineerId());
+        actionLog.setStatus(TicketStatus.RESOLVED);
+        actionLog.setActionNote(request.getActionNote());
+        actionLog.setAttachmentUrl(request.getAttachmentUrl());
+        ticketActionLogRepository.save(actionLog);
+
+        // TODO: Add WebClient call to feedback-service here
+
+        return updatedTicket;
+    }
+
+    @Override
+    @Transactional
+    public Ticket holdTicket(HoldTicketRequest request) {
+        Ticket ticket = ticketRepository.findById(request.getTicketId())
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + request.getTicketId()));
+
+        ticket.setStatus(TicketStatus.ON_HOLD);
+        Ticket updatedTicket = ticketRepository.save(ticket);
+
+        TicketActionLog actionLog = new TicketActionLog();
+        actionLog.setTicket(updatedTicket);
+        actionLog.setUpdatedBy(request.getEngineerId());
+        actionLog.setStatus(TicketStatus.ON_HOLD);
+        actionLog.setActionNote(request.getActionNote());
+        ticketActionLogRepository.save(actionLog);
+
+        return updatedTicket;
+    }
+
+    @Override
+    @Transactional
+    public Ticket closeTicket(CloseTicketRequest request) {
+        Ticket ticket = ticketRepository.findById(request.getTicketId())
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + request.getTicketId()));
+
+        // Business logic: Only a resolved ticket can be closed
+        if (ticket.getStatus() != TicketStatus.RESOLVED) {
+            throw new IllegalStateException("Only a resolved ticket can be closed.");
+        }
+
+        ticket.setStatus(TicketStatus.CLOSED);
+        Ticket updatedTicket = ticketRepository.save(ticket);
+
+        TicketActionLog actionLog = new TicketActionLog();
+        actionLog.setTicket(updatedTicket);
+        actionLog.setUpdatedBy(request.getCustomerId());
+        actionLog.setStatus(TicketStatus.CLOSED);
+        actionLog.setActionNote("Ticket closed by customer.");
+        ticketActionLogRepository.save(actionLog);
+
+        // Delegate the WebClient call to the dedicated client
+        feedbackServiceClient.createPendingFeedback(new FeedbackCreationRequest(ticket.getTicketId(), ticket.getCreatedFor()));
+
         return updatedTicket;
     }
 }
