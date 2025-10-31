@@ -2,12 +2,12 @@ import { Link } from 'react-router-dom'
 
 export default function AuthPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#FAF9F6]">
       <div className="w-full max-w-md rounded-xl bg-white p-8 text-center shadow-lg">
         {/* Logo */}
         <Link to="/" className="inline-block">
           <img
-            className="mx-auto h-12 w-auto"
+            className="mx-auto h-18 w-auto"
             src="/assets/lumadesk-logo.png"
             alt="Lumadesk Logo"
           />

@@ -4,11 +4,25 @@ import { Link, useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
-import { useAuth } from '../context/AuthContext'; // <-- 1. UNCOMMENT THIS
+import { useAuth } from '../context/AuthContext';
+
+// This redirect map is great. We'll use it.
+const roleRedirects = {
+  ROLE_CUSTOMER: '/dashboard/customer',
+  ROLE_SUPPORT_AGENT: '/dashboard/support-agent',
+  ROLE_TRIAGE_OFFICER: '/dashboard/triage',
+  ROLE_TECH_SUPPORT_ENGINEER: '/dashboard/tech-support',
+  ROLE_NOC_ENGINEER: '/dashboard/noc-engineer',
+  ROLE_FIELD_ENGINEER: '/dashboard/field',
+  ROLE_TEAM_LEAD: '/dashboard/team-lead',
+  ROLE_MANAGER: '/dashboard/manager',
+  ROLE_NOC_ADMIN: '/dashboard/admin/noc',
+  ROLE_CXO: '/dashboard/cxo',
+};
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth(); // <-- 2. UNCOMMENT THIS
+  const { login } = useAuth();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -16,8 +30,9 @@ export default function LoginPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [formErrors, setFormErrors] =useState({});
+  const [formErrors, setFormErrors] = useState({});
 
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -26,6 +41,7 @@ export default function LoginPage() {
     }
   };
 
+  // Validate form inputs
   const validateForm = () => {
     const errors = {};
     if (!formData.email) errors.email = 'Email is required';
@@ -34,24 +50,30 @@ export default function LoginPage() {
     return Object.keys(errors).length === 0;
   };
 
+  // --- 🎨 THIS IS THE CORRECTED FUNCTION ---
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null); 
-    
-    if (!validateForm()) {
-      return;
-    }
+    setError(null);
+
+    if (!validateForm()) return;
 
     setIsLoading(true);
     try {
+      // ✅ API call
       const response = await axiosInstance.post('/auth/login', formData);
-
-      // --- 3. THIS IS THE CHANGE ---
-      // Pass the full API response to our context
-      login(response.data); 
       
-      // Redirect to the dashboard
-      navigate('/dashboard'); 
+      // ✅ response.data is { token, userId, role, fullName }
+      
+      // ✅ 1. Pass the entire response.data to your context
+      login(response.data);
+
+      // ✅ 2. Get the role directly from the response data
+      const { role } = response.data;
+      
+      // ✅ 3. Find the correct redirect path
+      const redirectPath = roleRedirects[role]; // Default to home
+      // ✅ 4. Navigate to the role-specific dashboard
+      navigate(redirectPath);
 
     } catch (err) {
       console.error('Login failed:', err);
@@ -65,26 +87,29 @@ export default function LoginPage() {
     }
   };
 
-  // --- The rest of the file is unchanged ---
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-4">
+    // Note: bg-[#FAF9F6] is fine, but redundant if it's on the <body>
+    <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
+        {/* Logo */}
         <Link to="/">
           <img
-            className="mx-auto h-12 w-auto"
+            className="mx-auto h-16 w-auto" // Corrected from h-18 to h-16
             src="/assets/lumadesk-logo.png"
             alt="Lumadesk Logo"
           />
         </Link>
-        
+
         <h2 className="mt-6 text-center text-2xl font-semibold text-slate-800">
           Sign in to your account
         </h2>
 
-        <form 
-          onSubmit={handleSubmit} 
+        {/* Login Form */}
+        <form
+          onSubmit={handleSubmit}
           className="mt-8 space-y-6 rounded-xl bg-white p-8 shadow-lg"
         >
+          {/* Error Message */}
           {error && (
             <div className="rounded-md border border-red-300 bg-red-50 p-3 text-center text-sm text-red-700">
               {error}
@@ -115,16 +140,7 @@ export default function LoginPage() {
             required
           />
 
-          <div className="flex items-center justify-end">
-            <div className="text-sm">
-              <Link 
-                to="/forgot-password"
-                className="font-medium text-indigo-600 hover:text-indigo-500"
-              >
-                Forgot your password?
-              </Link>
-            </div>
-          </div>
+          {/* Forgot Password Link - Removed as per your code */}
 
           <Button type="submit" isLoading={isLoading}>
             Sign in
@@ -133,7 +149,7 @@ export default function LoginPage() {
       </div>
 
       <p className="mt-8 text-center text-sm text-slate-500">
-        Don't have an account?{' '}
+        Don’t have an account?{' '}
         <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
           Sign up
         </Link>

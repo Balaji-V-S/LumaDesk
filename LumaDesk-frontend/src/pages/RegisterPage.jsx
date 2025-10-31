@@ -82,12 +82,12 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-4">
+        <div className="flex min-h-screen flex-col items-center justify-center bg-[#FAF9F6] p-4">
             <div className="w-full max-w-lg">
                 {/* Logo */}
                 <Link to="/">
                     <img
-                        className="mx-auto h-12 w-auto"
+                        className="mx-auto h-18 w-auto"
                         src="/assets/lumadesk-logo.png"
                         alt="Lumadesk Logo"
                     />
@@ -110,7 +110,7 @@ export default function RegisterPage() {
                     )}
 
                     {/* Form Grid */}
-                    <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 px-2">
                         <div className="sm:col-span-2">
                             <Input
                                 label="Full name"

@@ -12,7 +12,7 @@ export default function Navbar() {
           <Link to="/" className="-m-1.5 p-1.5">
             <span className="sr-only">Lumadesk</span>
             <img
-              className="h-8 w-auto"
+              className="h-16 w-auto"
               src="/assets/lumadesk-logo.png"
               alt="Lumadesk Logo"
             />
