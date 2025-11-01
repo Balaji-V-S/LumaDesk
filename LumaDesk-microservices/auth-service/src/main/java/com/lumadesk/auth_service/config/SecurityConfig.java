@@ -4,7 +4,7 @@ import com.lumadesk.auth_service.security.JwtAuthEntryPoint;
 import com.lumadesk.auth_service.security.JwtAuthRequestFilter;
 import com.lumadesk.auth_service.service.UserDetailsServiceImpl;
 import com.lumadesk.auth_service.security.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,16 +21,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Autowired
-    private JwtAuthEntryPoint unauthorizedHandler;
+    private final JwtAuthEntryPoint unauthorizedHandler;
 
-    @Autowired
-    private JwtAuthRequestFilter jwtRequestFilter;
+    private final JwtAuthRequestFilter jwtRequestFilter;
 
-    @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

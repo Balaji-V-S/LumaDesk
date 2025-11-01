@@ -4,16 +4,16 @@ import com.lumadesk.ai_agent_service.dto.AgentRequest;
 import com.lumadesk.ai_agent_service.dto.AgentResponse;
 import com.lumadesk.ai_agent_service.exception.GeminiNotAvailableException;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class AiAgentServiceImpl implements AiAgentService{
 
-    @Autowired
-    private GoogleAiGeminiChatModel geminiChatModel;
+    private final GoogleAiGeminiChatModel geminiChatModel;
 
     private static final Map<String, String> PROMPT_TEMPLATES = Map.of(
             "ROLE_CUSTOMER",

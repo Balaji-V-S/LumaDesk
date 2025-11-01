@@ -1,6 +1,7 @@
 package com.lumadesk.auth_service.client;
 
 import com.lumadesk.auth_service.dto.UserCreationRequest;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -8,6 +9,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Component
+@RequiredArgsConstructor
 public class UserClient {
 
     private static final Logger log = LoggerFactory.getLogger(UserClient.class);

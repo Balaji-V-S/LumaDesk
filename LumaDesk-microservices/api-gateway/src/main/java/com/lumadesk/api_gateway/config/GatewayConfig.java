@@ -2,7 +2,6 @@ package com.lumadesk.api_gateway.config;
 
 import com.lumadesk.api_gateway.security.AuthenticationFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +15,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class GatewayConfig {
 
-    private AuthenticationFilter filter;
+    private final AuthenticationFilter filter;
 
     @Bean
     public RouteLocator routes(RouteLocatorBuilder builder) {

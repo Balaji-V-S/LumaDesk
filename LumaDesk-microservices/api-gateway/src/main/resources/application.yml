@@ -33,6 +33,10 @@ spring:
               uri: lb://ticket-service
               predicates:
                 - Path=/api/tickets/**, /api/tickets/raise-tickets/**,/api/sla/**,/api/issue-categories/**,/ticket-service/v3/api-docs/**,/ticket-service/swagger-ui/**,/ticket-service/swagger-ui.html
+            - id: feedback_service_route
+              uri: lb://feedback-service
+              predicates:
+                - Path=/api/feedback/**,/feedback-service/v3/api-docs/**,/feedback-service/swagger-ui/**,/feedback-service/swagger-ui.html
             - id: ai_agent_service_route
               uri: lb://ai-agent-service
               predicates:

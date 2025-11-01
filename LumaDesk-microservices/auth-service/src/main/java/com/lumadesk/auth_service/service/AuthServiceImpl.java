@@ -7,9 +7,9 @@ import com.lumadesk.auth_service.entities.Users;
 import com.lumadesk.auth_service.repository.UserRepository;
 import com.lumadesk.auth_service.security.JwtUtil;
 import com.lumadesk.auth_service.exception.*;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,27 +17,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Service
+@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService{
 
     private static final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
-    @Autowired
-    private UserClient userClient;
+    private final UserClient userClient;
 
     @Transactional
     public Users registerUser(SignUpRequest signUpRequest) {

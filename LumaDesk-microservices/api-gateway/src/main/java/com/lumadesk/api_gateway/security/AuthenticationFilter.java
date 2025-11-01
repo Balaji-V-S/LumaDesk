@@ -1,7 +1,7 @@
 package com.lumadesk.api_gateway.security;
 
 import io.jsonwebtoken.Claims;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.HttpStatus;
@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.function.Predicate;
 
 @Component
+@RequiredArgsConstructor
 public class AuthenticationFilter implements GatewayFilter {
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
