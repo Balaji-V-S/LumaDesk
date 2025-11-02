@@ -1,7 +1,9 @@
 package com.lumadesk.feedback_service.service;
 
+import com.lumadesk.feedback_service.client.NotificationServiceClient;
 import com.lumadesk.feedback_service.client.TicketServiceClient;
 import com.lumadesk.feedback_service.dto.FeedbackCreationRequest;
+import com.lumadesk.feedback_service.dto.NotificationRequest;
 import com.lumadesk.feedback_service.dto.ReopenTicketRequest;
 import com.lumadesk.feedback_service.dto.SubmitFeedbackRequest;
 import com.lumadesk.feedback_service.entities.Feedback;
@@ -17,6 +19,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     private final FeedbackRepository feedbackRepository;
     private final TicketServiceClient ticketServiceClient;
+    private final NotificationServiceClient notificationServiceClient;
 
     @Override
     @Transactional
@@ -46,12 +49,21 @@ public class FeedbackServiceImpl implements FeedbackService {
         feedback.setRating(request.getRating());
         feedback.setComment(request.getComment());
         feedback.setFeedbackStatus(FeedbackStatus.COMPLETED);
+
         Feedback savedFeedback = feedbackRepository.save(feedback);
 
         // If rating is 2 or less, trigger the reopen ticket workflow
         if (savedFeedback.getRating() <= 2) {
             ticketServiceClient.reopenTicket(new ReopenTicketRequest(savedFeedback.getTicketId(), savedFeedback.getUserId()));
         }
+
+        // Send notification to the customer
+        notificationServiceClient.sendNotification(new NotificationRequest(
+                String.valueOf(savedFeedback.getUserId()),
+                "System",
+                "Feedback Received for Ticket: " + savedFeedback.getTicketId(),
+                "Thank you for your feedback!"
+        ));
 
         return savedFeedback;
     }

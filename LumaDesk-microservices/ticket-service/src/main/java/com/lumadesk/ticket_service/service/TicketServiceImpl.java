@@ -1,6 +1,7 @@
 package com.lumadesk.ticket_service.service;
 
 import com.lumadesk.ticket_service.client.FeedbackServiceClient;
+import com.lumadesk.ticket_service.client.NotificationServiceClient;
 import com.lumadesk.ticket_service.dto.*;
 import com.lumadesk.ticket_service.entities.AssignmentLog;
 import com.lumadesk.ticket_service.entities.Ticket;
@@ -26,6 +27,7 @@ public class TicketServiceImpl implements TicketService {
     private final AssignmentLogRepository assignmentLogRepository;
     private final TicketActionLogRepository ticketActionLogRepository;
     private final FeedbackServiceClient feedbackServiceClient;
+    private final NotificationServiceClient notificationServiceClient;
 
     @Override
     @Transactional
@@ -36,7 +38,17 @@ public class TicketServiceImpl implements TicketService {
         ticket.setIssueCategory(request.getIssueCategory());
         ticket.setIssueDescription(request.getIssueDescription());
         ticket.setStatus(TicketStatus.NEW); // Default status
-        return ticketRepository.save(ticket);
+        Ticket savedTicket = ticketRepository.save(ticket);
+
+        // Send notification
+        notificationServiceClient.sendNotification(new NotificationRequest(
+                String.valueOf(savedTicket.getCreatedFor()),
+                "System",
+                "Ticket Created: " + savedTicket.getTicketId(),
+                "Your ticket has been successfully created."
+        ));
+
+        return savedTicket;
     }
 
     @Override
@@ -48,7 +60,17 @@ public class TicketServiceImpl implements TicketService {
         ticket.setIssueCategory(request.getIssueCategory());
         ticket.setIssueDescription(request.getIssueDescription());
         ticket.setStatus(TicketStatus.NEW);
-        return ticketRepository.save(ticket);
+        Ticket savedTicket = ticketRepository.save(ticket);
+
+        // Send notification
+        notificationServiceClient.sendNotification(new NotificationRequest(
+                String.valueOf(savedTicket.getCreatedFor()),
+                "System",
+                "Ticket Created: " + savedTicket.getTicketId(),
+                "A ticket has been created for you by a support agent."
+        ));
+
+        return savedTicket;
     }
 
     @Override
@@ -81,6 +103,15 @@ public class TicketServiceImpl implements TicketService {
         log.setAssignedTo(request.getAssignedTo());
         log.setAssignedBy(request.getAssignedBy());
         assignmentLogRepository.save(log);
+
+        // Send notification
+        notificationServiceClient.sendNotification(new NotificationRequest(
+                String.valueOf(updatedTicket.getAssignedTo()),
+                "System",
+                "New Ticket Assigned: " + updatedTicket.getTicketId(),
+                "You have been assigned a new ticket."
+        ));
+
         return updatedTicket;
     }
 
@@ -129,6 +160,14 @@ public class TicketServiceImpl implements TicketService {
         actionLog.setActionNote("Ticket opened by engineer.");
         ticketActionLogRepository.save(actionLog);
 
+        // Send notification
+        notificationServiceClient.sendNotification(new NotificationRequest(
+                String.valueOf(updatedTicket.getCreatedFor()),
+                "System",
+                "Ticket In Progress: " + updatedTicket.getTicketId(),
+                "Your ticket is now being worked on."
+        ));
+
         return updatedTicket;
     }
 
@@ -149,7 +188,13 @@ public class TicketServiceImpl implements TicketService {
         actionLog.setAttachmentUrl(request.getAttachmentUrl());
         ticketActionLogRepository.save(actionLog);
 
-        // TODO: Add WebClient call to feedback-service here
+        // Send notification
+        notificationServiceClient.sendNotification(new NotificationRequest(
+                String.valueOf(updatedTicket.getCreatedFor()),
+                "System",
+                "Ticket Resolved: " + updatedTicket.getTicketId(),
+                "Your ticket has been resolved. Please confirm the resolution."
+        ));
 
         return updatedTicket;
     }
@@ -197,6 +242,14 @@ public class TicketServiceImpl implements TicketService {
         // Delegate the WebClient call to the dedicated client
         feedbackServiceClient.createPendingFeedback(new FeedbackCreationRequest(ticket.getTicketId(), ticket.getCreatedFor()));
 
+        // Send notification
+        notificationServiceClient.sendNotification(new NotificationRequest(
+                String.valueOf(updatedTicket.getCreatedFor()),
+                "System",
+                "Ticket Closed: " + updatedTicket.getTicketId(),
+                "Your ticket has been closed."
+        ));
+
         return updatedTicket;
     }
 
@@ -240,6 +293,13 @@ public class TicketServiceImpl implements TicketService {
         actionLog.setStatus(TicketStatus.REOPENED);
         actionLog.setActionNote("Ticket automatically reopened due to low feedback rating.");
         ticketActionLogRepository.save(actionLog);
+
+        notificationServiceClient.sendNotification(new NotificationRequest(
+                String.valueOf(updatedTicket.getCreatedFor()),
+                "System",
+                "Ticket Reopened: " + updatedTicket.getTicketId(),
+                "Your ticket has been reopened."
+        ));
 
         return updatedTicket;
     }
