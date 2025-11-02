@@ -1,6 +1,8 @@
 package com.lumadesk.feedback_service.service;
 
+import com.lumadesk.feedback_service.client.TicketServiceClient;
 import com.lumadesk.feedback_service.dto.FeedbackCreationRequest;
+import com.lumadesk.feedback_service.dto.ReopenTicketRequest;
 import com.lumadesk.feedback_service.dto.SubmitFeedbackRequest;
 import com.lumadesk.feedback_service.entities.Feedback;
 import com.lumadesk.feedback_service.entities.enums.FeedbackStatus;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class FeedbackServiceImpl implements FeedbackService {
 
     private final FeedbackRepository feedbackRepository;
+    private final TicketServiceClient ticketServiceClient;
 
     @Override
     @Transactional
@@ -43,7 +46,13 @@ public class FeedbackServiceImpl implements FeedbackService {
         feedback.setRating(request.getRating());
         feedback.setComment(request.getComment());
         feedback.setFeedbackStatus(FeedbackStatus.COMPLETED);
+        Feedback savedFeedback = feedbackRepository.save(feedback);
 
-        return feedbackRepository.save(feedback);
+        // If rating is 2 or less, trigger the reopen ticket workflow
+        if (savedFeedback.getRating() <= 2) {
+            ticketServiceClient.reopenTicket(new ReopenTicketRequest(savedFeedback.getTicketId(), savedFeedback.getUserId()));
+        }
+
+        return savedFeedback;
     }
 }

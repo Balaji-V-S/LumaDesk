@@ -65,4 +65,22 @@ public class TicketController {
         Ticket updatedTicket = ticketService.closeTicket(request);
         return ResponseEntity.ok(updatedTicket);
     }
+
+    @GetMapping("/new")
+    public ResponseEntity<List<Ticket>> getNewTickets() {
+        List<Ticket> newTickets = ticketService.getNewTickets();
+        return ResponseEntity.ok(newTickets);
+    }
+
+    @GetMapping("/assigned-to/{engineerId}")
+    public ResponseEntity<List<Ticket>> getTicketsByAssignedTo(@PathVariable Long engineerId) {
+        List<Ticket> assignedTickets = ticketService.getTicketsByAssignedTo(engineerId);
+        return ResponseEntity.ok(assignedTickets);
+    }
+
+    @PutMapping("/reopen")
+    public ResponseEntity<Ticket> reopenTicket(@Valid @RequestBody ReopenTicketRequest request) {
+        Ticket updatedTicket = ticketService.reopenTicket(request);
+        return ResponseEntity.ok(updatedTicket);
+    }
 }

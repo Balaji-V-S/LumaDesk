@@ -15,4 +15,7 @@ public interface TicketService {
     Ticket resolveTicket(ResolveTicketRequest request);
     Ticket holdTicket(HoldTicketRequest request);
     Ticket closeTicket(CloseTicketRequest request);
+    List<Ticket> getNewTickets();
+    List<Ticket> getTicketsByAssignedTo(Long engineerId);
+    Ticket reopenTicket(ReopenTicketRequest request);
 }

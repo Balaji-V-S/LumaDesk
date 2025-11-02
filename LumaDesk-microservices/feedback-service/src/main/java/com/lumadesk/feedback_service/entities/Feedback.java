@@ -27,9 +27,9 @@ public class Feedback {
     @Column(nullable = false)
     private Long userId; // ID of the customer who raised the ticket
 
-    @Min(value = 1, message = "Rating must be at least 1")
+    @Min(value = 0, message = "Rating must be at least 0")
     @Max(value = 5, message = "Rating must be at most 5")
-    private Integer rating;
+    private Float rating;
 
     @Size(min=10, max=100, message = "Comment must be between 10 and 100 characters")
     @Column(columnDefinition = "TEXT")

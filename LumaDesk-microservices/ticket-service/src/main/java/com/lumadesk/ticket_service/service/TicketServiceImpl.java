@@ -199,4 +199,48 @@ public class TicketServiceImpl implements TicketService {
 
         return updatedTicket;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Ticket> getNewTickets() {
+        return ticketRepository.findAllByStatus(TicketStatus.NEW);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Ticket> getTicketsByAssignedTo(Long engineerId) {
+        return ticketRepository.findAllByAssignedTo(engineerId);
+    }
+
+    @Override
+    @Transactional
+    public Ticket reopenTicket(ReopenTicketRequest request) {
+        Ticket ticket = ticketRepository.findById(request.getTicketId())
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + request.getTicketId()));
+
+        // Find the last person the ticket was assigned to
+        AssignmentLog lastAssignment = assignmentLogRepository.findTopByTicketOrderByAssignedAtDesc(ticket)
+                .orElseThrow(() -> new IllegalStateException("Cannot reopen ticket: No previous assignment found."));
+
+        ticket.setStatus(TicketStatus.REOPENED);
+        ticket.setAssignedTo(lastAssignment.getAssignedTo()); // Re-assign to the last engineer
+        Ticket updatedTicket = ticketRepository.save(ticket);
+
+        // Create a new AssignmentLog for the re-assignment
+        AssignmentLog newAssignmentLog = new AssignmentLog();
+        newAssignmentLog.setTicket(updatedTicket);
+        newAssignmentLog.setAssignedTo(lastAssignment.getAssignedTo());
+        newAssignmentLog.setAssignedBy(request.getCustomerId()); // The customer is implicitly the one re-opening
+        assignmentLogRepository.save(newAssignmentLog);
+
+        // Create a TicketActionLog to record the reopen action
+        TicketActionLog actionLog = new TicketActionLog();
+        actionLog.setTicket(updatedTicket);
+        actionLog.setUpdatedBy(request.getCustomerId());
+        actionLog.setStatus(TicketStatus.REOPENED);
+        actionLog.setActionNote("Ticket automatically reopened due to low feedback rating.");
+        ticketActionLogRepository.save(actionLog);
+
+        return updatedTicket;
+    }
 }
