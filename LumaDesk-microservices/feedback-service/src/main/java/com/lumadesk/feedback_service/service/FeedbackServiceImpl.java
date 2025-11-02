@@ -62,7 +62,7 @@ public class FeedbackServiceImpl implements FeedbackService {
                 String.valueOf(savedFeedback.getUserId()),
                 "System",
                 "Feedback Received for Ticket: " + savedFeedback.getTicketId(),
-                "Thank you for your feedback!"
+                "Thank you for your valuable feedback!"
         ));
 
         return savedFeedback;

@@ -3,7 +3,6 @@ package com.lumadesk.auth_service.config;
 import com.lumadesk.auth_service.security.JwtAuthEntryPoint;
 import com.lumadesk.auth_service.security.JwtAuthRequestFilter;
 import com.lumadesk.auth_service.service.UserDetailsServiceImpl;
-import com.lumadesk.auth_service.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

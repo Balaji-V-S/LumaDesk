@@ -45,7 +45,7 @@ public class TicketServiceImpl implements TicketService {
                 String.valueOf(savedTicket.getCreatedFor()),
                 "System",
                 "Ticket Created: " + savedTicket.getTicketId(),
-                "Your ticket has been successfully created."
+                "Your ticket has been created successfully"
         ));
 
         return savedTicket;
@@ -76,8 +76,7 @@ public class TicketServiceImpl implements TicketService {
     @Override
     @Transactional
     public List<Ticket> getTicketsByCustomerId(Long custId){
-        List<Ticket> tickets=ticketRepository.findAllByCreatedFor(custId);
-        return tickets;
+        return ticketRepository.findAllByCreatedFor(custId);
     }
 
     @Override
@@ -214,6 +213,14 @@ public class TicketServiceImpl implements TicketService {
         actionLog.setStatus(TicketStatus.ON_HOLD);
         actionLog.setActionNote(request.getActionNote());
         ticketActionLogRepository.save(actionLog);
+
+        // Send notification
+        notificationServiceClient.sendNotification(new NotificationRequest(
+                String.valueOf(updatedTicket.getCreatedFor()),
+                "System",
+                "Ticket Closed: " + updatedTicket.getTicketId(),
+                "Your ticket has been put ONHOLD"
+        ));
 
         return updatedTicket;
     }

@@ -4,17 +4,17 @@ import com.lumadesk.auth_service.client.UserClient;
 import com.lumadesk.auth_service.dto.*;
 import com.lumadesk.auth_service.entities.URoles;
 import com.lumadesk.auth_service.entities.Users;
+import com.lumadesk.auth_service.exception.*;
 import com.lumadesk.auth_service.repository.UserRepository;
 import com.lumadesk.auth_service.security.JwtUtil;
-import com.lumadesk.auth_service.exception.*;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -35,7 +35,7 @@ public class AuthServiceImpl implements AuthService{
 
     @Transactional
     public Users registerUser(SignUpRequest signUpRequest) {
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+        if (Boolean.TRUE.equals(userRepository.existsByEmail(signUpRequest.getEmail()))) {
             log.warn("Registration failed: Email already in use: {}", signUpRequest.getEmail());
             throw new EmailAlreadyInUseException("Error: Email is already in use!");
         }

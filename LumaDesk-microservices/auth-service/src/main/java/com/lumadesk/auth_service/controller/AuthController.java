@@ -4,11 +4,11 @@ import com.lumadesk.auth_service.dto.*;
 import com.lumadesk.auth_service.service.AuthServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,7 +33,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+    public ResponseEntity<String> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         log.info("Attempting registration for email: {}", signUpRequest.getEmail());
         try {
             authService.registerUser(signUpRequest);
@@ -50,7 +50,7 @@ public class AuthController {
 
     @PostMapping("/reset-password")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
+    public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
         log.info("Attempting to change password for user: {}", changePasswordRequest.getEmail());
         try {
             authService.changePassword(changePasswordRequest);
@@ -64,7 +64,7 @@ public class AuthController {
 
     @PutMapping("/change-role")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<?> updateUserRole(@Valid @RequestBody UpdateRoleRequest updateRoleRequest) {
+    public ResponseEntity<String> updateUserRole(@Valid @RequestBody UpdateRoleRequest updateRoleRequest) {
         try {
             authService.updateUserRole(updateRoleRequest);
             log.info("Role updated successfully for user ID: {}", updateRoleRequest.getUserId());

@@ -2,6 +2,7 @@ package com.lumadesk.ticket_service.service;
 
 import com.lumadesk.ticket_service.dto.*;
 import com.lumadesk.ticket_service.entities.Ticket;
+
 import java.util.List;
 
 public interface TicketService {
