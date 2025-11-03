@@ -1,7 +1,6 @@
 package com.lumadesk.auth_service.client;
 
 import com.lumadesk.auth_service.dto.UserCreationRequest;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -9,13 +8,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Component
-@RequiredArgsConstructor
 public class UserClient {
 
     private static final Logger log = LoggerFactory.getLogger(UserClient.class);
     private final WebClient webClient;
 
-    // WebClient.Builder is already @LoadBalanced (defined in WebClientConfig)
+    // Constructor injection of the load-balanced WebClient.Builder
     public UserClient(WebClient.Builder builder) {
         this.webClient = builder.baseUrl("http://user-service").build();
     }
@@ -31,7 +29,7 @@ public class UserClient {
                 .doOnError(error ->
                         log.error("❌ Failed to create user profile via user-service: {}", error.getMessage()))
                 .onErrorResume(e -> {
-                    // Optional: handle fallback logic here (like retry, message queue, etc.)
+                    // To prevent the error from propagating and causing a 500 in the calling service
                     return Mono.empty();
                 })
                 .subscribe();
