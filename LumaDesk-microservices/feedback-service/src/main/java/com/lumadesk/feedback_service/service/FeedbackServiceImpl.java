@@ -8,6 +8,9 @@ import com.lumadesk.feedback_service.dto.ReopenTicketRequest;
 import com.lumadesk.feedback_service.dto.SubmitFeedbackRequest;
 import com.lumadesk.feedback_service.entities.Feedback;
 import com.lumadesk.feedback_service.entities.enums.FeedbackStatus;
+import com.lumadesk.feedback_service.exception.FeedbackAlreadyCompletedException;
+import com.lumadesk.feedback_service.exception.FeedbackAlreadyExistsException;
+import com.lumadesk.feedback_service.exception.ResourceNotFoundException;
 import com.lumadesk.feedback_service.repository.FeedbackRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,14 +27,15 @@ public class FeedbackServiceImpl implements FeedbackService {
     @Override
     @Transactional
     public Feedback createPendingFeedback(FeedbackCreationRequest request) {
-        if (feedbackRepository.existsByTicketId(request.getTicketId())) {
-            throw new IllegalStateException("Feedback for this ticket has already been initiated.");
+        // This check is now slightly different. We should check if a PENDING feedback already exists.
+        if (feedbackRepository.findByTicketIdAndFeedbackStatus(request.getTicketId(), FeedbackStatus.PENDING).isPresent()) {
+            throw new FeedbackAlreadyExistsException("A pending feedback request for ticket ID " + request.getTicketId() + " already exists.");
         }
 
         Feedback feedback = new Feedback();
         feedback.setTicketId(request.getTicketId());
-        feedback.setUserId(request.getUserId()); // Save the customer's user ID
-        feedback.setFeedbackStatus(FeedbackStatus.PENDING); // Set default status
+        feedback.setUserId(request.getUserId());
+        feedback.setFeedbackStatus(FeedbackStatus.PENDING);
 
         return feedbackRepository.save(feedback);
     }
@@ -39,11 +43,13 @@ public class FeedbackServiceImpl implements FeedbackService {
     @Override
     @Transactional
     public Feedback submitFeedback(SubmitFeedbackRequest request) {
-        Feedback feedback = feedbackRepository.findByTicketId(request.getTicketId())
-                .orElseThrow(() -> new IllegalStateException("No pending feedback found for this ticket."));
+        // Find the specific PENDING feedback for this ticket.
+        Feedback feedback = feedbackRepository.findByTicketIdAndFeedbackStatus(request.getTicketId(), FeedbackStatus.PENDING)
+                .orElseThrow(() -> new ResourceNotFoundException("No pending feedback found for ticket ID: " + request.getTicketId()));
 
+        // This check is still valid, but the query above is more precise.
         if (feedback.getFeedbackStatus() == FeedbackStatus.COMPLETED) {
-            throw new IllegalStateException("Feedback for this ticket has already been completed.");
+            throw new FeedbackAlreadyCompletedException("Feedback for ticket ID " + request.getTicketId() + " has already been completed.");
         }
 
         feedback.setRating(request.getRating());
@@ -52,17 +58,15 @@ public class FeedbackServiceImpl implements FeedbackService {
 
         Feedback savedFeedback = feedbackRepository.save(feedback);
 
-        // If rating is 2 or less, trigger the reopen ticket workflow
         if (savedFeedback.getRating() <= 2) {
             ticketServiceClient.reopenTicket(new ReopenTicketRequest(savedFeedback.getTicketId(), savedFeedback.getUserId()));
         }
 
-        // Send notification to the customer
         notificationServiceClient.sendNotification(new NotificationRequest(
                 String.valueOf(savedFeedback.getUserId()),
                 "System",
                 "Feedback Received for Ticket: " + savedFeedback.getTicketId(),
-                "Thank you for your valuable feedback!"
+                "Thank you for your feedback!"
         ));
 
         return savedFeedback;
