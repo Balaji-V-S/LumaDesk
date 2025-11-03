@@ -331,15 +331,6 @@ public class TicketServiceImpl implements TicketService {
             ticket.setPriority(TicketPriority.valueOf(triageResponse.getPriority()));
         }
 
-        Ticket updatedTicket = ticketRepository.save(ticket);
-
-        TicketActionLog actionLog = new TicketActionLog();
-        actionLog.setTicket(updatedTicket);
-        actionLog.setUpdatedBy(0L); // 0L can represent the system/AI
-        actionLog.setStatus(ticket.getStatus());
-        actionLog.setActionNote("Ticket triaged by AI. Severity set to " + ticket.getSeverity() + ", Priority set to " + ticket.getPriority());
-        ticketActionLogRepository.save(actionLog);
-
-        return updatedTicket;
+        return ticketRepository.save(ticket);
     }
 }

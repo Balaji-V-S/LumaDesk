@@ -31,14 +31,20 @@ public class AiTriageServiceImpl implements AiTriageService {
         return "You are an expert IT support Triage Officer. Based on the following ticket information, " +
                 "suggest a severity and priority. The possible severity levels are LOW, MEDIUM, HIGH, CRITICAL. " +
                 "The possible priority levels are LOW, MEDIUM, HIGH, URGENT. " +
-                "Return your answer as a single line, raw JSON object with two keys: \"severity\" and \"priority\". Do not include any other text or formatting like ```json ``` or \n .\n\n" +
+                "Return ONLY a valid JSON object (not code block, not markdown, not explanation) " +
+                "with two keys: \"severity\" and \"priority\".\n\n" +
                 "Issue Category: " + request.getIssueCategory() + "\n" +
                 "Issue Description: " + request.getIssueDescription();
     }
 
     private TriageResponse parseResponse(String jsonResponse) {
         try {
-            return objectMapper.readValue(jsonResponse, TriageResponse.class);
+            String cleaned = jsonResponse
+                    .replaceAll("(?s)```json", "")  // remove ```json
+                    .replaceAll("(?s)```", "")      // remove remaining ```
+                    .replaceAll("[\\n\\r]", "")     // remove newlines
+                    .trim();
+            return objectMapper.readValue(cleaned, TriageResponse.class);
         } catch (Exception e) {
             throw new AIAgentException("Failed to parse AI response: " + jsonResponse, e);
         }
