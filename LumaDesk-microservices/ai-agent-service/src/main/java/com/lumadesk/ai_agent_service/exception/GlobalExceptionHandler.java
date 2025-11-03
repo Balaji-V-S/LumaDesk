@@ -20,4 +20,13 @@ public class GlobalExceptionHandler {
         body.put("error", ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.SERVICE_UNAVAILABLE);
     }
+
+    @ExceptionHandler(AIAgentException.class)
+    public ResponseEntity<Object> AIAgentException(
+            AIAgentException ex, WebRequest request) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", "AI Triaging cannot be done at the moment.");
+        body.put("error", ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.SERVICE_UNAVAILABLE);
+    }
 }

@@ -1,11 +1,14 @@
 package com.lumadesk.ticket_service.service;
 
+import com.lumadesk.ticket_service.client.AiAgentServiceClient;
 import com.lumadesk.ticket_service.client.FeedbackServiceClient;
 import com.lumadesk.ticket_service.client.NotificationServiceClient;
 import com.lumadesk.ticket_service.dto.*;
 import com.lumadesk.ticket_service.entities.AssignmentLog;
 import com.lumadesk.ticket_service.entities.Ticket;
 import com.lumadesk.ticket_service.entities.TicketActionLog;
+import com.lumadesk.ticket_service.entities.enums.TicketPriority;
+import com.lumadesk.ticket_service.entities.enums.TicketSeverity;
 import com.lumadesk.ticket_service.entities.enums.TicketStatus;
 import com.lumadesk.ticket_service.exception.ResourceNotFoundException;
 import com.lumadesk.ticket_service.repository.AssignmentLogRepository;
@@ -28,6 +31,7 @@ public class TicketServiceImpl implements TicketService {
     private final TicketActionLogRepository ticketActionLogRepository;
     private final FeedbackServiceClient feedbackServiceClient;
     private final NotificationServiceClient notificationServiceClient;
+    private final AiAgentServiceClient aiAgentServiceClient;
 
     @Override
     @Transactional
@@ -307,6 +311,34 @@ public class TicketServiceImpl implements TicketService {
                 "Ticket Reopened: " + updatedTicket.getTicketId(),
                 "Your ticket has been reopened."
         ));
+
+        return updatedTicket;
+    }
+
+    @Override
+    @Transactional
+    public Ticket triageTicketWithAI(Long ticketId) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + ticketId));
+        TriageRequest triageRequest = new TriageRequest(
+                ticket.getIssueCategory().getCategoryName(),
+                ticket.getIssueDescription()
+        );
+
+        TriageResponse triageResponse = aiAgentServiceClient.getTriageSuggestion(triageRequest).block(); // Using .block() for simplicity
+        if (triageResponse != null) {
+            ticket.setSeverity(TicketSeverity.valueOf(triageResponse.getSeverity()));
+            ticket.setPriority(TicketPriority.valueOf(triageResponse.getPriority()));
+        }
+
+        Ticket updatedTicket = ticketRepository.save(ticket);
+
+        TicketActionLog actionLog = new TicketActionLog();
+        actionLog.setTicket(updatedTicket);
+        actionLog.setUpdatedBy(0L); // 0L can represent the system/AI
+        actionLog.setStatus(ticket.getStatus());
+        actionLog.setActionNote("Ticket triaged by AI. Severity set to " + ticket.getSeverity() + ", Priority set to " + ticket.getPriority());
+        ticketActionLogRepository.save(actionLog);
 
         return updatedTicket;
     }

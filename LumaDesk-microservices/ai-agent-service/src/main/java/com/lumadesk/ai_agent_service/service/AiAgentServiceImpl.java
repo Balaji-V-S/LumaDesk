@@ -1,4 +1,4 @@
-package com.lumadesk.ai_agent_service.services;
+package com.lumadesk.ai_agent_service.service;
 
 import com.lumadesk.ai_agent_service.dto.AgentRequest;
 import com.lumadesk.ai_agent_service.dto.AgentResponse;

@@ -2,7 +2,7 @@ package com.lumadesk.ai_agent_service.controller;
 
 import com.lumadesk.ai_agent_service.dto.AgentRequest;
 import com.lumadesk.ai_agent_service.dto.AgentResponse;
-import com.lumadesk.ai_agent_service.services.AiAgentServiceImpl;
+import com.lumadesk.ai_agent_service.service.AiAgentServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

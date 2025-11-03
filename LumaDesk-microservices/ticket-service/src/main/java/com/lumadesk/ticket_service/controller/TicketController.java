@@ -83,4 +83,10 @@ public class TicketController {
         Ticket updatedTicket = ticketService.reopenTicket(request);
         return ResponseEntity.ok(updatedTicket);
     }
+
+    @PostMapping("/ai-triage/{ticketId}")
+    public ResponseEntity<Ticket> triageTicketWithAI(@PathVariable Long ticketId) {
+        Ticket triagedTicket = ticketService.triageTicketWithAI(ticketId);
+        return ResponseEntity.ok(triagedTicket);
+    }
 }
