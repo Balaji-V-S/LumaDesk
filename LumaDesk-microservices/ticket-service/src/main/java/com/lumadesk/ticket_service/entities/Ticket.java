@@ -60,6 +60,9 @@ public class Ticket {
     @Positive(message = "AssignedTo (resolver ID) must be a positive number")
     private Long assignedTo; // ID of the resolver
 
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+    private boolean slaBreached = false;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
