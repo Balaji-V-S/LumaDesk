@@ -30,3 +30,13 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     enabled: true
+
+logging:
+  level:
+    root: INFO
+    com.lumadesk.user_service: DEBUG
+  file:
+    name: "C:\\Users\\balaji.vs\\IdeaProjects\\LumaDesk\\LumaDesk-microservices\\Application-Logs\\user-service.log"
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{serviceName}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{serviceName}] %logger{36} - %msg%n"

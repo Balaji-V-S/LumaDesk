@@ -5,15 +5,19 @@ import com.lumadesk.ai_agent_service.dto.AgentResponse;
 import com.lumadesk.ai_agent_service.exception.GeminiNotAvailableException;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AiAgentServiceImpl implements AiAgentService{
 
     private final GoogleAiGeminiChatModel geminiChatModel;
+
+
 
     private static final Map<String, String> PROMPT_TEMPLATES = Map.of(
             "ROLE_CUSTOMER",
@@ -48,6 +52,7 @@ public class AiAgentServiceImpl implements AiAgentService{
     );
 
     public AgentResponse chatWithGemini(AgentRequest request) {
+        log.info("Received chat request for role: {} | query: {}", request.getRole(), request.getQuery());
         String outputInstructions="Output Instructions: Respond concisely and professionally. , Your answer must be under 40 words. Do not exceed the word limit under any circumstance.";
         String systemMessage = PROMPT_TEMPLATES.getOrDefault(request.getRole(), "You are a virtual assistant.  ");
         String history = "";
@@ -57,10 +62,14 @@ public class AiAgentServiceImpl implements AiAgentService{
         String prompt =outputInstructions + "\nSystem Instructions:" + systemMessage + "\nHere is the conversation history:\n" + history + "\n\nUser: " + request.getQuery() + "\n\nAI:";
 
         try {
+            log.debug("Sending prompt to Gemini model: {}", prompt);
             String answer = geminiChatModel.chat(prompt);
+            log.info("Gemini model responded successfully for role: {}", request.getRole());
             String newContext =history + (history.isEmpty()? "" : "\n") + "User: " + request.getQuery() + "\nAI: " + answer;
+            log.debug("New conversation context built successfully.");
             return new AgentResponse(newContext, answer);
         } catch (Exception e) {
+            log.error("Error communicating with Gemini model for role: {} | cause: {}", request.getRole(), e.getMessage(), e);
             throw new GeminiNotAvailableException("Error communicating with Gemini model. Cause: "+e);
         }
     }
@@ -69,11 +78,14 @@ public class AiAgentServiceImpl implements AiAgentService{
         try {
             String response = geminiChatModel.chat("Hello");
             if (response != null && !response.trim().isEmpty()) {
+                log.info("Gemini model is active and responding.");
                 return "Gemini model is active and responding.";
             } else {
+                log.warn("Gemini model responded with empty content.");
                 return "Gemini model responded with empty content.";
             }
         } catch (Exception e) {
+            log.error("Error connecting to Gemini model: {}", e.getMessage(), e);
             throw new GeminiNotAvailableException("Error connecting to Gemini model. Cause: "+e);
         }
     }
