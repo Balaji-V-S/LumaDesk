@@ -31,8 +31,8 @@ public class SlaBreachMonitor {
             TicketStatus.REOPENED
     );
 
-    // Check for SLA breaches every 2 minutes
-    @Scheduled(fixedRate = 120000)
+    // Check for SLA breaches every 5 minutes
+    @Scheduled(fixedRate = 300000)
     public void checkForSlaBreaches() {
         log.info("Running SLA Breach Monitor...");
         List<Ticket> activeTickets = ticketRepository.findByStatusIn(ACTIVE_STATUSES);
@@ -50,6 +50,7 @@ public class SlaBreachMonitor {
             // 1. Check for tickets that have already breached
             if (now.isAfter(breachTime)) {
                 if (!ticket.isSlaBreached()) {
+                    ticket.setPriority(TicketPriority.URGENT);
                     ticket.setSlaBreached(true);
                     ticketRepository.save(ticket);
                     log.warn("SLA BREACHED for ticket {}!", ticket.getTicketId());
@@ -87,5 +88,6 @@ public class SlaBreachMonitor {
                 "SLA Alert for Ticket: " + ticket.getTicketId(),
                 message
         ));
+        log.info("Alert has been sent to the assigned engineer.");
     }
 }
