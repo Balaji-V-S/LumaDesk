@@ -4,6 +4,7 @@ import com.lumadesk.ticket_service.dto.AgentTicketCreationRequest;
 import com.lumadesk.ticket_service.dto.CustTicketCreationRequest;
 import com.lumadesk.ticket_service.entities.Ticket;
 import com.lumadesk.ticket_service.service.TicketService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +13,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
+@SecurityRequirement(name="Bearer Authentication")
 @RequestMapping("/api/tickets/raise-tickets")
 public class TicketRaisingController {
 
-    private TicketService ticketService;
+    private final TicketService ticketService;
 
     @PostMapping("/customer")
     public ResponseEntity<Ticket> createTicketByCustomer(@Valid @RequestBody CustTicketCreationRequest request) {

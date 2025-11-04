@@ -9,7 +9,7 @@ public interface TicketService {
     Ticket createTicketByAgent(AgentTicketCreationRequest request);
     List<Ticket> getTicketsByCustomerId(Long custId);
     String updateTicketStatus(UpdateStatusRequest request);
-    Ticket assignTicketToEngineer(AssignTicketRequest request);
+    Ticket triageAndAssignEngineer(TriageAssignTicketRequest request);
     Ticket reassignTicket(ReassignTicketRequest request);
     Ticket openTicket(OpenTicketRequest request);
     Ticket resolveTicket(ResolveTicketRequest request);

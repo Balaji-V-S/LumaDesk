@@ -30,9 +30,9 @@ public class TicketController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/assign")
-    public ResponseEntity<Ticket> assignTicketToEngineer(@Valid @RequestBody AssignTicketRequest request) {
-        Ticket updatedTicket = ticketService.assignTicketToEngineer(request);
+    @PutMapping("/triage-assign")
+    public ResponseEntity<Ticket> triageAndAssignEngineer(@Valid @RequestBody TriageAssignTicketRequest request) {
+        Ticket updatedTicket = ticketService.triageAndAssignEngineer(request);
         return ResponseEntity.ok(updatedTicket);
     }
 

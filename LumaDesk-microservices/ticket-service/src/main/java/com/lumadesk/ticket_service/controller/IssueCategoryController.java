@@ -4,6 +4,7 @@ import com.lumadesk.ticket_service.dto.IssueCategoryCreationRequest;
 import com.lumadesk.ticket_service.dto.IssueCategoryUpdationRequest;
 import com.lumadesk.ticket_service.entities.IssueCategory;
 import com.lumadesk.ticket_service.service.IssueCategoryService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +14,9 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping("/api/issue-categories")
+@SecurityRequirement(name="Bearer Authentication")
 @RequiredArgsConstructor
+@RequestMapping("/api/issue-categories")
 public class IssueCategoryController {
 
     private IssueCategoryService issueCategoryService;

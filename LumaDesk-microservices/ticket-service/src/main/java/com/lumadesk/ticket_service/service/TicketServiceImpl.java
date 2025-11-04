@@ -15,6 +15,7 @@ import com.lumadesk.ticket_service.repository.AssignmentLogRepository;
 import com.lumadesk.ticket_service.repository.IssueCategoryRepository;
 import com.lumadesk.ticket_service.repository.TicketActionLogRepository;
 import com.lumadesk.ticket_service.repository.TicketRepository;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,12 +94,14 @@ public class TicketServiceImpl implements TicketService {
         return "Status changed successfully";
     }
 
-    // TODO: Make this Service to get the SLA, Priority, Severity and Assignment (instead of just assignment)
     @Override
     @Transactional
-    public Ticket assignTicketToEngineer(AssignTicketRequest request) {
+    public Ticket triageAndAssignEngineer(TriageAssignTicketRequest request) {
         Ticket ticket = ticketRepository.findById(request.getTicketId())
                 .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + request.getTicketId()));
+        ticket.setSla(request.getSla());
+        ticket.setPriority(request.getPriority());
+        ticket.setSeverity(request.getSeverity());
         ticket.setAssignedTo(request.getAssignedTo());
         ticket.setStatus(TicketStatus.ASSIGNED);
         Ticket updatedTicket = ticketRepository.save(ticket);
@@ -115,7 +118,6 @@ public class TicketServiceImpl implements TicketService {
                 "New Ticket Assigned: " + updatedTicket.getTicketId(),
                 "You have been assigned a new ticket."
         ));
-
         return updatedTicket;
     }
 

@@ -4,6 +4,7 @@ import com.lumadesk.ticket_service.dto.SLACreationRequest;
 import com.lumadesk.ticket_service.dto.SLAUpdationRequest;
 import com.lumadesk.ticket_service.entities.SLA;
 import com.lumadesk.ticket_service.service.SLAService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +14,9 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping("/api/sla")
 @RequiredArgsConstructor
+@SecurityRequirement(name="Bearer Authentication")
+@RequestMapping("/api/sla")
 public class SLAController {
 
     private SLAService slaService;
