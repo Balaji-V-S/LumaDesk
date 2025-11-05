@@ -19,7 +19,7 @@ import java.util.List;
 @RequestMapping("/api/sla")
 public class SLAController {
 
-    private SLAService slaService;
+    private final SLAService slaService;
 
     @PostMapping("/create")
     public ResponseEntity<SLA> createSLA(@Valid @RequestBody SLACreationRequest request) {

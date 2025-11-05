@@ -1,5 +1,6 @@
 package com.lumadesk.notification_service.entities;
 
+import com.lumadesk.notification_service.entities.enums.NotificationStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,10 @@ public class Notification {
     @Lob
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private NotificationStatus status;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

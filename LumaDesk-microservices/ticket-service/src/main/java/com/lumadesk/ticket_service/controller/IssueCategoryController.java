@@ -19,7 +19,7 @@ import java.util.List;
 @RequestMapping("/api/issue-categories")
 public class IssueCategoryController {
 
-    private IssueCategoryService issueCategoryService;
+    private final IssueCategoryService issueCategoryService;
 
     @PostMapping("/create")
     public ResponseEntity<IssueCategory> createIssueCategory(@Valid @RequestBody IssueCategoryCreationRequest request) {
