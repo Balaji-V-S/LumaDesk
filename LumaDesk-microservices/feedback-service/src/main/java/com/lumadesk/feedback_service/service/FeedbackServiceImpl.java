@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class FeedbackServiceImpl implements FeedbackService {
@@ -70,5 +72,11 @@ public class FeedbackServiceImpl implements FeedbackService {
         ));
 
         return savedFeedback;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Feedback> getFeedbackByUserId(Long userId) {
+        return feedbackRepository.findAllByUserId(userId);
     }
 }

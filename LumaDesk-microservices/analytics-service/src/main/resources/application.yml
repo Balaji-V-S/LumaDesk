@@ -38,5 +38,5 @@ logging:
   file:
     name: "C:\\Users\\balaji.vs\\IdeaProjects\\LumaDesk\\LumaDesk-microservices\\Application-Logs\\analytics-service.log"
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{serviceName}] %logger{36} - %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{serviceName}] %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [${spring.application.name}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [${spring.application.name}] %logger{36} - %msg%n"

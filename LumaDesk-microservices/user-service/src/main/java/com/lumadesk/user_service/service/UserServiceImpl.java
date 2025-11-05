@@ -28,4 +28,11 @@ public class UserServiceImpl implements UserService{
         userProfile.setPinCode(request.getPinCode());
         return userProfileRepository.save(userProfile);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserProfile getUserProfileById(Long userId) {
+        return userProfileRepository.findById(userId)
+                .orElseThrow(() -> new UserProfileNotFoundException("User not found with ID: " + userId));
+    }
 }

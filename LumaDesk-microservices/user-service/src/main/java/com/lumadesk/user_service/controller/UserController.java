@@ -6,10 +6,7 @@ import com.lumadesk.user_service.service.UserServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,5 +24,11 @@ public class UserController {
     public ResponseEntity<UserProfile> updateMyAddress(@Valid @RequestBody UpdateAddressRequest updateAddressrequest) {
         UserProfile updatedProfile = userService.updateAddress(updateAddressrequest);
         return ResponseEntity.ok(updatedProfile);
+    }
+
+    @GetMapping("/api/users/get-profile/{userId}")
+    public ResponseEntity<UserProfile> getUserProfileById(@PathVariable Long userId) {
+        UserProfile userProfile = userService.getUserProfileById(userId);
+        return ResponseEntity.ok(userProfile);
     }
 }

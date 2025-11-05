@@ -32,7 +32,7 @@ spring:
             - id: ticket_service_route
               uri: lb://ticket-service
               predicates:
-                - Path=/api/tickets/**, /api/tickets/raise-tickets/**,/api/sla/**,/api/issue-categories/**,/ticket-service/v3/api-docs/**,/ticket-service/swagger-ui/**,/ticket-service/swagger-ui.html
+                - Path=/api/tickets/**, /api/tickets/raise-tickets/**, /api/sla/**, /api/issue-categories/**, /api/logs/**, /ticket-service/v3/api-docs/**,/ticket-service/swagger-ui/**,/ticket-service/swagger-ui.html
             - id: feedback_service_route
               uri: lb://feedback-service
               predicates:
@@ -71,3 +71,13 @@ springdoc: #Swagger directly hits the microservice, not through API Gateway
         url: /analytics-service/v3/api-docs
       - name: ai-agent-service
         url: /ai-agent-service/v3/api-docs
+
+logging:
+  level:
+    root: INFO
+    com.lumadesk.api_gateway: DEBUG
+  file:
+    name: "C:\\Users\\balaji.vs\\IdeaProjects\\LumaDesk\\LumaDesk-microservices\\Application-Logs\\api-gateway.log"
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [${spring.application.name}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [${spring.application.name}] %logger{36} - %msg%n"

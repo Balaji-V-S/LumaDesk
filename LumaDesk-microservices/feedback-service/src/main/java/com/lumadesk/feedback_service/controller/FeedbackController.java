@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/feedback")
 @RequiredArgsConstructor
@@ -33,5 +35,11 @@ public class FeedbackController {
     public ResponseEntity<Feedback> submitFeedback(@Valid @RequestBody SubmitFeedbackRequest request) {
         Feedback feedback = feedbackService.submitFeedback(request);
         return ResponseEntity.ok(feedback);
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Feedback>> getFeedbackByUserId(@PathVariable Long userId) {
+        List<Feedback> feedbackList = feedbackService.getFeedbackByUserId(userId);
+        return ResponseEntity.ok(feedbackList);
     }
 }

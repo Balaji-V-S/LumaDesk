@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 @SecurityRequirement(name="Bearer Authentication")
 @RequestMapping("/api/tickets/raise-tickets")

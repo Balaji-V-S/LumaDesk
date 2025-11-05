@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "*")
 @SecurityRequirement(name="Bearer Authentication")
 @RequiredArgsConstructor
 @RequestMapping("/api/issue-categories")
