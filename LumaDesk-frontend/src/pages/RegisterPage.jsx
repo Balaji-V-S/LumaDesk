@@ -1,206 +1,280 @@
 // src/pages/RegisterPage.jsx
-import { useState } from 'react';
+import * as React from 'react';
+import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import axiosInstance from '../api/axiosInstance';
-import Input from '../components/ui/Input';
-import Button from '../components/ui/Button';
+import {
+  Mail,
+  Lock,
+  User,
+  Phone,
+  Home,
+  MapPin,
+  Target,
+  Loader2,
+  AlertCircle,
+  CheckCircle,
+} from 'lucide-react';
+import { Button } from '../components/ui/Button';
+import { registerUser } from '../api/authService';
+import NavBar from '../layouts/NavBar';
+import Footer from '../layouts/Footer';
 
-export default function RegisterPage() {
-    const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-        confirmPassword: '',
-        fullName: '',
-        phoneNumber: '',
-        address: '',
-        pinCode: '',
-    });
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null); // For general API errors
-    const [formErrors, setFormErrors] = useState({}); // For field-specific errors
+//
+// --- THE FIX (PART 1) ---
+// Move FormField *outside* of RegisterPage.
+// It's now its own component and won't be re-created on every render.
+//
+const FormField = ({
+  name,
+  label,
+  type,
+  placeholder,
+  icon: Icon,
+  value,
+  onChange, // <-- THE FIX (PART 2): Accept onChange as a prop
+}) => (
+  <div className="relative">
+    <label
+      htmlFor={name}
+      className="mb-2 block text-sm font-medium text-stone-700"
+    >
+      {label}
+    </label>
+    <div className="relative">
+      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">
+        <Icon className="h-5 w-5 text-stone-400" />
+      </span>
+      <input
+        id={name}
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange} // <-- THE FIX (PART 2): Use the prop here
+        required
+        placeholder={placeholder}
+        className="block w-full rounded-md border-stone-300 py-2 pl-10 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm"
+        autoComplete="off" // Good for preventing password manager clutter
+      />
+    </div>
+  </div>
+);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-        // Clear error on change
-        if (formErrors[name]) {
-            setFormErrors((prev) => ({ ...prev, [name]: null }));
-        }
-    };
+const RegisterPage = () => {
+  const [formData, setFormData] = React.useState({
+    email: '',
+    password: '',
+    fullName: '',
+    phoneNumber: '',
+    address: '',
+    area: '',
+    pinCode: '',
+  });
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
+  const [success, setSuccess] = React.useState(false);
+  const navigate = useNavigate();
 
-    const validateForm = () => {
-        const errors = {};
-        if (!formData.email) errors.email = 'Email is required';
-        if (!formData.fullName) errors.fullName = 'Full name is required';
-        if (!formData.password) errors.password = 'Password is required';
-        else if (formData.password.length < 8) errors.password = 'Password must be at least 8 characters';
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-        if (formData.password !== formData.confirmPassword) {
-            errors.confirmPassword = 'Passwords do not match';
-        }
-        // Add more validation as needed (e.g., phone, pincode format)
-        setFormErrors(errors);
-        return Object.keys(errors).length === 0;
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    setSuccess(false);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError(null);
+    try {
+      await registerUser(formData);
+      setSuccess(true);
+      setTimeout(() => navigate('/login'), 1000); // 1 second is a bit fast, but okay
+    } catch (err) {
+      const errorMsg =
+        err.response?.data || 'An unknown error occurred during registration.';
+      setError(errorMsg);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        if (!validateForm()) {
-            return;
-        }
+  // FormField is no longer defined here
 
-        setIsLoading(true);
-        try {
-            // Create a payload without the 'confirmPassword' field
-            const { confirmPassword, ...payload } = formData;
+  return (
+    <div>
+        <NavBar/>
+    <div className="flex min-h-screen items-center justify-center bg-stone-50 py-12">
+      <motion.div
+        className="w-full max-w-lg rounded-lg bg-white p-8 shadow-xl"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="text-center">
+          {/* Assuming you have this logo, if not, the Ticket icon works too */}
+          <img
+            src="/assets/lumadesk-logo.png"
+            alt="LumaDesk Logo"
+            className="mx-auto mb-4 h-16 w-auto"
+          />
+          <h1 className="text-3xl font-bold text-stone-800">
+            Create your LumaDesk Account
+          </h1>
+          <p className="mt-2 text-stone-600">Join the network. Get support.</p>
+        </div>
 
-            // Endpoint URL: /auth/register (Update as needed)
-            const response = await axiosInstance.post('/auth/register', payload);
-
-            // --- SUCCESS ---
-            console.log('Registration successful:', response.data);
-
-            // Navigate to login page with a success message (optional)
-            navigate('/login?registered=true');
-
-        } catch (err) {
-            // --- ERROR ---
-            console.error('Registration failed:', err);
-            if (err.response && err.response.status === 409) {
-                // Example: Conflict, email already exists
-                setError('An account with this email already exists.');
-                setFormErrors({ email: 'This email is already taken' });
-            } else {
-                setError('An unexpected error occurred. Please try again later.');
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    return (
-        <div className="flex min-h-screen flex-col items-center justify-center bg-[#FAF9F6] p-4">
-            <div className="w-full max-w-lg">
-                {/* Logo */}
-                <Link to="/">
-                    <img
-                        className="mx-auto h-18 w-auto"
-                        src="/assets/lumadesk-logo.png"
-                        alt="Lumadesk Logo"
-                    />
-                </Link>
-
-                <h2 className="mt-6 text-center text-2xl font-semibold text-slate-800">
-                    Create your account
-                </h2>
-
-                {/* Form */}
-                <form
-                    onSubmit={handleSubmit}
-                    className="mt-8 space-y-6 rounded-xl bg-white p-8 shadow-lg"
-                >
-                    {/* General Error Message */}
-                    {error && (
-                        <div className="rounded-md border border-red-300 bg-red-50 p-3 text-center text-sm text-red-700">
-                            {error}
-                        </div>
-                    )}
-
-                    {/* Form Grid */}
-                    <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 px-2">
-                        <div className="sm:col-span-2">
-                            <Input
-                                label="Full name"
-                                id="fullName"
-                                name="fullName"
-                                value={formData.fullName}
-                                onChange={handleChange}
-                                error={formErrors.fullName}
-                                required
-                            />
-                        </div>
-
-                        <div className="sm:col-span-2">
-                            <Input
-                                label="Email address"
-                                id="email"
-                                name="email"
-                                type="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                error={formErrors.email}
-                                required
-                            />
-                        </div>
-
-                        <Input
-                            label="Password"
-                            id="password"
-                            name="password"
-                            type="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            error={formErrors.password}
-                            required
-                        />
-
-                        <Input
-                            label="Confirm Password"
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            type="password"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            error={formErrors.confirmPassword}
-                            required
-                        />
-
-                        <Input
-                            label="Phone number"
-                            id="phoneNumber"
-                            name="phoneNumber"
-                            type="tel"
-                            value={formData.phoneNumber}
-                            onChange={handleChange}
-                            error={formErrors.phoneNumber}
-                        />
-
-                        <Input
-                            label="Pincode"
-                            id="pinCode"
-                            name="pinCode"
-                            value={formData.pinCode}
-                            onChange={handleChange}
-                            error={formErrors.pinCode}
-                        />
-
-                        <div className="sm:col-span-2">
-                            <Input
-                                label="Address"
-                                id="address"
-                                name="address"
-                                value={formData.address}
-                                onChange={handleChange}
-                                error={formErrors.address}
-                            />
-                        </div>
-                    </div>
-
-                    <Button type="submit" isLoading={isLoading}>
-                        Create account
-                    </Button>
-                </form>
+        {!success ? (
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <FormField
+                  name="fullName"
+                  label="Full Name"
+                  type="text"
+                  placeholder="John Doe"
+                  icon={User}
+                  value={formData.fullName}
+                  onChange={handleChange} // <-- THE FIX (PART 2): Pass the handler
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <FormField
+                  name="email"
+                  label="Email"
+                  type="email"
+                  placeholder="you@example.com"
+                  icon={Mail}
+                  value={formData.email}
+                  onChange={handleChange} // <-- THE FIX (PART 2): Pass the handler
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <FormField
+                  name="password"
+                  label="Password"
+                  type="password"
+                  placeholder="••••••••"
+                  icon={Lock}
+                  value={formData.password}
+                  onChange={handleChange} // <-- THE FIX (PART 2): Pass the handler
+                />
+              </div>
+              <FormField
+                name="phoneNumber"
+                label="Phone Number"
+                type="tel"
+                placeholder="+91-xxxxxxxxxx"
+                icon={Phone}
+                value={formData.phoneNumber}
+                onChange={handleChange} // <-- THE FIX (PART 2): Pass the handler
+              />
+              <FormField
+                name="pinCode"
+                label="Pin Code"
+                type="text"
+                placeholder="600001"
+                icon={Target}
+                value={formData.pinCode}
+                onChange={handleChange} // <-- THE FIX (PART 2): Pass the handler
+              />
+              <div className="sm:col-span-2">
+                <FormField
+                  name="address"
+                  label="Address"
+                  type="text"
+                  placeholder="1234 Main St"
+                  icon={Home}
+                  value={formData.address}
+                  onChange={handleChange} // <-- THE FIX (PART 2): Pass the handler
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <FormField
+                  name="area"
+                  label="Area"
+                  type="text"
+                  placeholder="Your Neighborhood"
+                  icon={MapPin}
+                  value={formData.area}
+                  onChange={handleChange} // <-- THE FIX (PART 2): Pass the handler
+                />
+              </div>
             </div>
 
-            <p className="mt-8 text-center text-sm text-slate-500">
-                Already have an account?{' '}
-                <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
-                    Sign in
-                </Link>
+            {error && (
+              <motion.div
+                className="flex items-center rounded-md bg-rose-50 p-3 text-sm text-rose-500"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <AlertCircle className="mr-2 h-4 w-4 flex-shrink-0" />
+                {error}
+              </motion.div>
+            )}
+
+            <Button
+              type="submit"
+              className="w-full"
+              variant="primary"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 1,
+                    ease: 'linear',
+                  }}
+                >
+                  {/* The Loader2 icon should be inside the spinning div,
+                      but the text should be next to it.
+                      Let's fix that layout slightly. */}
+                  <span className="flex items-center justify-center">
+                    <Loader2 className="mr-2 h-4 w-4" />
+                    Processing...
+                  </span>
+                </motion.div>
+              ) : (
+                'Create Account'
+              )}
+            </Button>
+          </form>
+        ) : (
+          <motion.div
+            className="mt-8 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <CheckCircle className="mx-auto h-12 w-12 text-lime-500" />
+            <h2 className="mt-4 text-2xl font-semibold text-stone-800">
+              Registration Successful!
+            </h2>
+            <p className="mt-2 text-stone-600">
+              Your account has been created. Redirecting you to the login page...
             </p>
-        </div>
-    );
-}
+            <Button asChild variant="ghost" className="mt-4">
+              <Link to="/login">Go to Login Now</Link>
+            </Button>
+          </motion.div>
+        )}
+
+        {!success && (
+          <p className="mt-6 text-center text-sm text-stone-600">
+            Already have an account?{' '}
+            <Link
+              to="/login"
+              className="font-medium text-amber-500 hover:text-amber-600"
+            >
+              Log in
+            </Link>
+          </p>
+        )}
+      </motion.div>
+    </div>
+    <Footer/>
+    </div>
+  );
+};
+
+export default RegisterPage;

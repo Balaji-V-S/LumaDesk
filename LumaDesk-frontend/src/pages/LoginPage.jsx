@@ -1,159 +1,242 @@
 // src/pages/LoginPage.jsx
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axiosInstance from '../api/axiosInstance';
-import Input from '../components/ui/Input';
-import Button from '../components/ui/Button';
+import * as React from 'react'; // 1. Import React to use useState
+import { motion } from 'framer-motion';
+import { Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
+import { Button } from '../components/ui/Button';
 import { useAuth } from '../context/AuthContext';
+import * as Form from '@radix-ui/react-form';
+import { Link, useNavigate } from 'react-router-dom'; // navigate is already imported, good.
+import NavBar from '../layouts/NavBar'; // Assuming path is correct
+import Footer from '../layouts/Footer'; // Assuming path is correct
 
-// This redirect map is great. We'll use it.
-const roleRedirects = {
-  ROLE_CUSTOMER: '/dashboard/customer',
-  ROLE_SUPPORT_AGENT: '/dashboard/support-agent',
-  ROLE_TRIAGE_OFFICER: '/dashboard/triage',
-  ROLE_TECH_SUPPORT_ENGINEER: '/dashboard/tech-support',
-  ROLE_NOC_ENGINEER: '/dashboard/noc-engineer',
-  ROLE_FIELD_ENGINEER: '/dashboard/field',
-  ROLE_TEAM_LEAD: '/dashboard/team-lead',
-  ROLE_MANAGER: '/dashboard/manager',
-  ROLE_NOC_ADMIN: '/dashboard/admin/noc',
-  ROLE_CXO: '/dashboard/cxo',
+const LoginPage = () => {
+    const [email, setEmail] = React.useState('');
+    const [password, setPassword] = React.useState('');
+
+    // 2. We only need login and isLoading from context. We'll handle the error locally.
+    const { login, isLoading } = useAuth();
+    const navigate = useNavigate();
+
+    // 3. THIS IS THE FIX: Create the local error state your handleSubmit needs
+    const [loginError, setLoginError] = React.useState(null);
+
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        setLoginError(null); // This call now works!
+
+        const success = await login(email, password);
+
+        if (success) {
+            navigate('/dashboard'); // This is perfect.
+        } else {
+            // This call also works now.
+            setLoginError('Invalid email or password. Please try again.');
+        }
+    };
+
+    return (
+        <div>
+            <NavBar />
+            <div className="flex min-h-screen items-center justify-center bg-stone-50">
+                <motion.div
+                    className="w-full max-w-md rounded-lg bg-white p-8 shadow-xl"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <div className="text-center">
+                        <img
+                            src="/assets/lumadesk-logo.png"
+                            alt="LumaDesk Logo"
+                            className="mx-auto mb-4 h-16 w-auto"
+                        />
+                        <p className="mt-2 text-stone-600">
+                            Welcome back. Please log in to continue.
+                        </p>
+                    </div>
+
+                    <Form.Root className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                        {/* Email Field (No changes) */}
+                        <Form.Field className="relative" name="email">
+
+                            <Form.Label className="mb-2 block text-sm font-medium text-stone-700">
+
+                                Email
+
+                            </Form.Label>
+
+                            <div className="relative">
+
+                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">
+
+                                    <Mail className="h-5 w-5 text-stone-400" />
+
+                                </span>
+
+                                <Form.Control asChild>
+
+                                    <input
+
+                                        type="email"
+
+                                        value={email}
+
+                                        onChange={(e) => setEmail(e.target.value)}
+
+                                        required
+
+                                        className="block w-full rounded-md border-stone-300 py-2 pl-10 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm"
+
+                                        placeholder="agent@lumadesk.com"
+
+                                    />
+
+                                </Form.Control>
+
+                            </div>
+
+                            <Form.Message
+
+                                className="mt-2 text-sm text-rose-500"
+
+                                match="valueMissing"
+
+                            >
+
+                                Please enter your email
+
+                            </Form.Message>
+
+                            <Form.Message
+
+                                className="mt-2 text-sm text-rose-500"
+
+                                match="typeMismatch"
+
+                            >
+
+                                Please enter a valid email address
+
+                            </Form.Message>
+                        </Form.Field>
+
+                        {/* Password Field (No changes) */}
+                        <Form.Field className="relative" name="password">
+                             <Form.Label className="mb-2 block text-sm font-medium text-stone-700">
+
+                            Password
+
+                        </Form.Label>
+
+                        <div className="relative">
+
+                            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">
+
+                                <Lock className="h-5 w-5 text-stone-400" />
+
+                            </span>
+
+                            <Form.Control asChild>
+
+                                <input
+
+                                    type="password"
+
+                                    value={password}
+
+                                    onChange={(e) => setPassword(e.target.value)}
+
+                                    required
+
+                                    className="block w-full rounded-md border-stone-300 py-2 pl-10 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm"
+
+                                    placeholder="••••••••"
+
+                                />
+
+                            </Form.Control>
+
+                        </div>
+
+                        <Form.Message
+
+                            className="mt-2 text-sm text-rose-500"
+
+                            match="valueMissing"
+
+                        >
+
+                            Please enter your password
+
+                        </Form.Message>
+                        </Form.Field>
+
+                        {/* 4. API Error Display: Point this to your new *local* error state */}
+                        {loginError && (
+                            <motion.div
+                                className="flex items-center rounded-md bg-rose-50 p-3 text-sm text-rose-500"
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                            >
+                                <AlertCircle className="mr-2 h-4 w-4 flex-shrink-0" />
+                                {loginError}
+                            </motion.div>
+                        )}
+
+                        {/* Submit Button (No changes) */}
+                        <Form.Submit asChild>
+                            <Form.Submit asChild>
+
+                        <Button
+
+                            type="submit"
+
+                            className="w-full"
+
+                            variant="primary"
+
+                            disabled={isLoading}
+
+                        >
+
+                            {isLoading ? (
+
+                                <motion.div
+
+                                    animate={{ rotate: 360 }}
+
+                                    transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+
+                                >
+
+                                    <Loader2 className="mr-2 h-4 w-4" />
+
+                                </motion.div>
+
+                            ) : (
+
+                                'Log In'
+
+                            )}
+
+                        </Button>
+
+                    </Form.Submit>
+                        </Form.Submit>
+                    </Form.Root>
+
+                    <p className="mt-6 text-center text-sm text-stone-600">
+                        Need an account?{' '}
+                        <Link to="/register" className="font-medium text-amber-500 hover:text-amber-600">
+                            Sign up
+                        </Link>
+                    </p>
+                </motion.div>
+            </div>
+            <Footer />
+        </div>
+    );
 };
 
-export default function LoginPage() {
-  const navigate = useNavigate();
-  const { login } = useAuth();
-
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [formErrors, setFormErrors] = useState({});
-
-  // Handle input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (formErrors[name]) {
-      setFormErrors((prev) => ({ ...prev, [name]: null }));
-    }
-  };
-
-  // Validate form inputs
-  const validateForm = () => {
-    const errors = {};
-    if (!formData.email) errors.email = 'Email is required';
-    if (!formData.password) errors.password = 'Password is required';
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  // --- 🎨 THIS IS THE CORRECTED FUNCTION ---
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-
-    if (!validateForm()) return;
-
-    setIsLoading(true);
-    try {
-      // ✅ API call
-      const response = await axiosInstance.post('/auth/login', formData);
-      
-      // ✅ response.data is { token, userId, role, fullName }
-      
-      // ✅ 1. Pass the entire response.data to your context
-      login(response.data);
-
-      // ✅ 2. Get the role directly from the response data
-      const { role } = response.data;
-      
-      // ✅ 3. Find the correct redirect path
-      const redirectPath = roleRedirects[role]; // Default to home
-      // ✅ 4. Navigate to the role-specific dashboard
-      navigate(redirectPath);
-
-    } catch (err) {
-      console.error('Login failed:', err);
-      if (err.response && (err.response.status === 401 || err.response.status === 404)) {
-        setError('Invalid email or password. Please try again.');
-      } else {
-        setError('An unexpected error occurred. Please try again later.');
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    // Note: bg-[#FAF9F6] is fine, but redundant if it's on the <body>
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <Link to="/">
-          <img
-            className="mx-auto h-16 w-auto" // Corrected from h-18 to h-16
-            src="/assets/lumadesk-logo.png"
-            alt="Lumadesk Logo"
-          />
-        </Link>
-
-        <h2 className="mt-6 text-center text-2xl font-semibold text-slate-800">
-          Sign in to your account
-        </h2>
-
-        {/* Login Form */}
-        <form
-          onSubmit={handleSubmit}
-          className="mt-8 space-y-6 rounded-xl bg-white p-8 shadow-lg"
-        >
-          {/* Error Message */}
-          {error && (
-            <div className="rounded-md border border-red-300 bg-red-50 p-3 text-center text-sm text-red-700">
-              {error}
-            </div>
-          )}
-
-          <Input
-            label="Email address"
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            value={formData.email}
-            onChange={handleChange}
-            error={formErrors.email}
-            required
-          />
-
-          <Input
-            label="Password"
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            value={formData.password}
-            onChange={handleChange}
-            error={formErrors.password}
-            required
-          />
-
-          {/* Forgot Password Link - Removed as per your code */}
-
-          <Button type="submit" isLoading={isLoading}>
-            Sign in
-          </Button>
-        </form>
-      </div>
-
-      <p className="mt-8 text-center text-sm text-slate-500">
-        Don’t have an account?{' '}
-        <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-          Sign up
-        </Link>
-      </p>
-    </div>
-  );
-}
+export default LoginPage;

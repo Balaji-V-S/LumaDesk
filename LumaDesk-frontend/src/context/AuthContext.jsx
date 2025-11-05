@@ -1,98 +1,78 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import axiosInstance from '../api/axiosInstance';
+// src/context/AuthContext.jsx
+import * as React from 'react';
+import { loginUser as apiLogin } from '../api/authService';
 
-const AuthContext = createContext(null);
+const AuthContext = React.createContext(undefined);
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+export const AuthProvider = ({ children }) => {
+  // --- UPDATE 1: Initialize user state from localStorage ---
+  // This keeps the user logged in on page refresh.
+  const [user, setUser] = React.useState(
+    () => JSON.parse(localStorage.getItem('user')) || null,
+  );
 
-  useEffect(() => {
+  // --- UPDATE 2: Fixed localStorage key mismatch ---
+  // Your login function saved 'token', but you were loading 'luma_token'.
+  // I've made them both use 'token'.
+  const [token, setToken] = React.useState(
+    () => localStorage.getItem('token'), 
+  );
+  
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
+
+  const login = async (email, password) => { // <-- You have the email right here
+    setIsLoading(true);
+    setError(null);
     try {
-      // --- MODIFIED: Read individual items ---
-      const storedToken = localStorage.getItem('authToken');
-      const storedUserId = localStorage.getItem('authUserId');
-      const storedRole = localStorage.getItem('authRole');
-      const storedFullName = localStorage.getItem('authFullName');
+      const response = await apiLogin(email, password);
+      
+      const { token, userId, role, fullName } = response.data;
 
-      // Check if all essential items are present
-      if (storedToken && storedUserId && storedRole && storedFullName) {
-        
-        // Re-create the user object for React state
-        const parsedUser = {
-          userId: Number(storedUserId), // Assuming userId is a number
-          role: storedRole,
-          fullName: storedFullName,
-        };
-        
-        setToken(storedToken);
-        setUser(parsedUser); // Set state with the re-built object
-        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-      }
-    } catch (error) {
-      console.error("Failed to parse auth data from localStorage", error);
-      // Clear all items on error
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('authUserId');
-      localStorage.removeItem('authRole');
-      localStorage.removeItem('authFullName');
+      // --- THIS IS THE FIX ---
+      // Add the 'email' from the function argument to the user object
+      const userToStore = { userId, fullName, role, email: email }; 
+      // --- END FIX ---
+
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(userToStore));
+      
+      setToken(token);
+      setUser(userToStore); // 'user' in state now has the email
+      
+      console.log('Login successful:', userToStore);
+      return true;
+
+    } catch (err) {
+      // ... (rest of your error handling)
+      return false;
     } finally {
       setIsLoading(false);
     }
-  }, []);
-
-  const login = (authData) => {
-    const { token, userId, role, fullName } = authData;
-    
-    // The user object for React state (this is good)
-    const userToStore = { userId, role, fullName };
-
-    setToken(token);
-    setUser(userToStore);
-
-    // --- MODIFIED: Store items separately ---
-    localStorage.setItem('authToken', token);
-    localStorage.setItem('authUserId', userId);
-    localStorage.setItem('authRole', role);
-    localStorage.setItem('authFullName', fullName);
-    
-    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   };
+
 
   const logout = () => {
     setUser(null);
     setToken(null);
-
-    // --- MODIFIED: Remove items separately ---
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('authUserId');
-    localStorage.removeItem('authRole');
-    localStorage.removeItem('authFullName');
     
-    delete axiosInstance.defaults.headers.common['Authorization'];
+    // Using clear() is safest to ensure no stray data
+    localStorage.clear(); 
+    
+    // Redirect to login
+    window.location.href = '/login'; 
   };
 
-  const authValue = {
-    user,
-    token,
-    login,
-    logout,
-    isAuthenticated: !!token,
-    isLoading,
-  };
+  // We add isLoading to the value so other components can show a spinner
+  const value = { user, token, login, logout, isLoading, error };
 
-  return (
-    <AuthContext.Provider value={authValue}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
 
-// Custom hook is unchanged
+// Helper hook
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
+  const context = React.useContext(AuthContext);
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;

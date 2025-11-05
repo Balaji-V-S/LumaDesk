@@ -1,2 +1,30 @@
 @import "tailwindcss";
 
+@layer base {
+  :root {
+    /* Color Palette derived from the provided image */
+    --primary: 38 92% 56%; /* Muted Amber/Orange for main CTAs */
+    --accent: 350 78% 61%; /* Soft, desaturated Red/Rose for secondary actions/highlights */
+    --secondary: 190 10% 80%; /* A very light grey/blue for subtle elements (not explicitly in image, but for balance) */
+    
+    /* Neutrals - Re-calibrated for image's black-and-white feel */
+    --neutral-light: 30 15% 97%; /* Very light, off-white background */
+    --neutral-dark: 220 10% 15%; /* Deep charcoal for text and strong elements */
+    
+    /* Background & Foreground (Text) */
+    --background: var(--neutral-light);
+    --foreground: var(--neutral-dark);
+
+    /* UI Elements */
+    --radius: 0.75rem; /* Rounded-lg equivalent, as seen in image */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.08); /* More subtle, as in image */
+  }
+
+  body {
+    @apply font-sans;
+    font-family: 'Inter', sans-serif;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
