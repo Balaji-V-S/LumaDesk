@@ -1,5 +1,5 @@
 package com.lumadesk.notification_service.entities.enums;
 
-public class NotificationStatus {
+public enum NotificationStatus {
     NEW,SENT,FAILED
 }

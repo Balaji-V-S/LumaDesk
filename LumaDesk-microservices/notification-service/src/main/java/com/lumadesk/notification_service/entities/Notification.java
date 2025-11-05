@@ -32,7 +32,7 @@ public class Notification {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private NotificationStatus status;
+    private NotificationStatus status=NotificationStatus.NEW;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
