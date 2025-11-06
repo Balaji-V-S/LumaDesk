@@ -163,17 +163,6 @@ const AppNavbar = () => {
                     </div>
                   )}
                 </div>
-                
-                <div className="border-t border-stone-200 p-2 text-center">
-                  <DropdownMenu.Item asChild>
-                    <Link
-                      to="/all-notifications" // A future page
-                      className="cursor-pointer rounded-md p-2 text-sm font-medium text-amber-600 outline-none hover:bg-stone-50"
-                    >
-                      View all notifications
-                    </Link>
-                  </DropdownMenu.Item>
-                </div>
 
               </DropdownMenu.Content>
             </DropdownMenu.Portal>

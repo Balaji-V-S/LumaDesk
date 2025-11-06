@@ -10,23 +10,29 @@ import AppLayout from './layouts/AppLayout';
 import PrivateRoute from './components/routes/PrivateRoute';
 import RoleBasedAccess from './components/routes/RoleBasedAccess'; // We'll use this later
 
-// --- Page Imports ---
+// --- Page Imports (Public) ---
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import UnauthorizedPage from './pages/UnauthorizedPage';
-import DashboardPage from './pages/DashboardPage'; // The smart dashboard
+
+// --- Page Imports (Private - All Roles) ---
+import DashboardPage from './pages/DashboardPage';
 import MyTicketsPage from './pages/MyTicketsPage';
-import ProfilePage from './pages/ProfilePage'; // 
 import NewTicketPage from './pages/NewTicketPage';
-import FeedbackPage from './pages/FeedbackPage'; // <-- Import the new page
-import AllTicketsPage from './pages/AllTicketsPage';
+import ProfilePage from './pages/ProfilePage';
+import FeedbackPage from './pages/FeedbackPage';
 import AiChatPage from './pages/AiChatPage';
+import AllTicketsPage from './pages/AllTicketsPage';
+import TriageTicketsPage from './pages/TriageTicketsPage';
+
+// --- Engineer-Only Import ---
+import ResolveTicketsPage from './pages/ResolveTicketsPage'; // <-- 1. IMPORT IT
+
+// --- Manager-Only Imports ---
 import SlaPage from './pages/SlaPage';
-import UserRolesPage from './pages/UserRolesPage';
 import IssueCategoryPage from './pages/IssueCategoryPage';
-import TriageTicketsPage from './pages/TriageTicketsPage'; 
-// import ReportsPage from './pages/ReportsPage';
+import UserRolesPage from './pages/UserRolesPage';
 
 
 // --- STUBBED DUMMY PAGES (for now) ---
@@ -35,12 +41,24 @@ const EscalationsPage = () => <div className="p-4"><h1 className="text-xl">Escal
 // --- END STUBS ---
 
 
+// --- ROLE GROUPINGS ---
 const MANAGER_ROLES = ['ROLE_MANAGER', 'ROLE_CXO', 'ROLE_NOC_ADMIN'];
 
-const AGENT_AND_ABOVE_ROLES = [
+const ENGINEER_ROLES = [
+  'ROLE_TECH_SUPPORT_ENGINEER',
+  'ROLE_NOC_ENGINEER',
+  'ROLE_FIELD_ENGINEER',
+];
+
+const AGENT_STAFF_ROLES = [ // All non-customer, non-engineer staff
   'ROLE_SUPPORT_AGENT',
-  'ROLE_TRIAGE_OFFICER', 
-  ...MANAGER_ROLES
+  'ROLE_TRIAGE_OFFICER',
+  ...MANAGER_ROLES,
+];
+
+const ALL_STAFF_ROLES = [ // Everyone except customers
+  ...AGENT_STAFF_ROLES,
+  ...ENGINEER_ROLES,
 ];
 
 function App() {
@@ -49,42 +67,39 @@ function App() {
       <Router>
         <Routes>
           {/* === 1. PUBLIC ROUTES === */}
-          {/* (These don't use a layout) */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
           {/* === 2. PRIVATE "APP" ROUTES === */}
-          {/* These routes are protected and use the AppLayout */}
           <Route element={<PrivateRoute />}>
-            <Route element={<AppLayout />}> {/* <-- The magic is here */}
+            <Route element={<AppLayout />}>
+              {/* Common Routes */}
               <Route path="/dashboard" element={<DashboardPage />} />
-              
-              {/* Add all other private routes here, and the layout will apply */}
               <Route path="/tickets/new" element={<NewTicketPage />} />
-              <Route path="/my-tickets" element={<MyTicketsPage />} />
               <Route path="/ai-agent" element={<AiChatPage />} />
-              <Route path="/feedbacks" element={<FeedbackPage />} /> {/* <-- ADD THIS ROUTE */}
-              <Route path="/profile" element={<ProfilePage />} /> {/* <-- ADD THIS ROUTE */}
-              <Route path="/tickets/all" element={<AllTicketsPage />} /> {/* this is for customer support*/}
-
-              {/* --- Triage-Only Route --- */}
+              <Route path="/feedbacks" element={<FeedbackPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              
+              {/* Customer-Only */}
+              <Route path="/my-tickets" element={<MyTicketsPage />} />
+              
+              {/* All Staff Routes */}
+              <Route path="/tickets/all" element={<RoleBasedAccess allowedRoles={ALL_STAFF_ROLES}><AllTicketsPage /></RoleBasedAccess>} />
+              
+              {/* Triage-Only Route */}
               <Route path="/tickets/triage" element={<RoleBasedAccess allowedRoles={['ROLE_TRIAGE_OFFICER']}><TriageTicketsPage /></RoleBasedAccess>} />
-
-              {/* --- Manager-Only Routes --- */}
+              
+              {/* --- 3. ADD THE NEW ROUTE --- */}
+              <Route path="/tickets/resolve" element={<RoleBasedAccess allowedRoles={ENGINEER_ROLES}><ResolveTicketsPage /></RoleBasedAccess>} />
+              
+              {/* Manager-Only Routes */}
+              <Route path="/analytics" element={<RoleBasedAccess allowedRoles={MANAGER_ROLES}><AnalyticsPage /></RoleBasedAccess>} />
+              <Route path="/tickets/escalated" element={<RoleBasedAccess allowedRoles={MANAGER_ROLES}><EscalationsPage /></RoleBasedAccess>} />
               <Route path="/admin/sla" element={<RoleBasedAccess allowedRoles={MANAGER_ROLES}><SlaPage /></RoleBasedAccess>} />
               <Route path="/admin/categories" element={<RoleBasedAccess allowedRoles={MANAGER_ROLES}><IssueCategoryPage /></RoleBasedAccess>} />
               <Route path="/admin/roles" element={<RoleBasedAccess allowedRoles={MANAGER_ROLES}><UserRolesPage /></RoleBasedAccess>} />
-              {/* <Route 
-                path="/reports" 
-                element={
-                  <RoleBasedAccess allowedRoles={['ROLE_MANAGER']}>
-                    <ReportsPage />
-                  </RoleBasedAccess>
-                } 
-              />
-              */}
             </Route>
           </Route>
           

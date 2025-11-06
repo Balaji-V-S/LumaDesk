@@ -68,4 +68,57 @@ export const triageAndAssignTicket = (triageData) => {
   return ticketApi.put('/triage-assign', triageData);
 };
 
+/**
+ * Gets all tickets assigned to a specific engineer.
+ * Matches: GET /api/tickets/assigned-to/{engineerId}
+ */
+export const getTicketsByAssignedTo = (engineerId) => {
+  return ticketApi.get(`/assigned-to/${engineerId}`);
+};
+
+/**
+ * Resolves a ticket.
+ * Matches: PUT /api/tickets/resolve
+ * @param {object} resolveData - { ticketId, engineerId, actionNote, attachmentUrl }
+ */
+export const resolveTicket = (resolveData) => {
+  return ticketApi.put('/resolve', resolveData);
+};
+
+/**
+ * Sets a ticket to IN_PROGRESS.
+ * Matches: PUT /api/tickets/open
+ * @param {object} openData - { ticketId, engineerId }
+ */
+export const openTicket = (openData) => {
+  return ticketApi.put('/open', openData);
+};
+
+/**
+ * Puts a ticket ON_HOLD.
+ * Matches: PUT /api/tickets/hold
+ * @param {object} holdData - { ticketId, engineerId, actionNote }
+ */
+export const holdTicket = (holdData) => {
+  return ticketApi.put('/hold', holdData);
+};
+
+/**
+ * Reassigns a ticket to a different engineer.
+ * Matches: PUT /api/tickets/reassign
+ * @param {object} reassignData - { ticketId, reassignedById, newAssignedToId }
+ */
+export const reassignTicket = (reassignData) => {
+  return ticketApi.put('/reassign', reassignData);
+};
+
+/**
+ * Customer closes a resolved ticket.
+ * Matches: PUT /api/tickets/close
+ * @param {object} closeData - { ticketId, customerId }
+ */
+export const closeTicket = (closeData) => {
+  return ticketApi.put('/close', closeData);
+};
+
 export default ticketApi;

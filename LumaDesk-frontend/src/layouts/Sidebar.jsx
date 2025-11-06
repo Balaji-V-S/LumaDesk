@@ -19,7 +19,8 @@ import {
   ClipboardList,
   BotMessageSquare,
   SlidersHorizontal,
-  Wand2
+  Wand2,
+  CheckCircle
 } from 'lucide-react';
 
 // --- Link Definitions By Role ---
@@ -72,18 +73,34 @@ const triageOfficerLinks = [
   { name: 'My Profile', to: '/profile', icon: UserCircle },
 ];
 
+const engineerLinks = [
+  { name: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
+  { name: 'Resolve Tickets', to: '/tickets/resolve', icon: CheckCircle },  
+  { name: 'All Tickets', to: '/tickets/all', icon: Ticket },
+  { name: 'AI Agent', to: '/ai-agent', icon: BotMessageSquare },
+  { name: 'My Profile', to: '/profile', icon: UserCircle },
+];
+
 // Helper to choose the right link set
 const getLinksByRole = (role) => {
   switch (role) {
     case 'ROLE_MANAGER':
       return managerLinks;
+
     case 'ROLE_SUPPORT_AGENT':
       return supportAgentLinks;
+
     case 'ROLE_TRIAGE_OFFICER':
       return triageOfficerLinks;
+
     case 'ROLE_CUSTOMER':
       return customerLinks;
     // ... other roles
+    case 'ROLE_TECH_SUPPORT_ENGINEER':
+    case 'ROLE_NOC_ENGINEER':
+    case 'ROLE_FIELD_ENGINEER':
+      return engineerLinks;
+
     default:
       return customerLinks;
   }
