@@ -15,7 +15,6 @@ import com.lumadesk.ticket_service.repository.AssignmentLogRepository;
 import com.lumadesk.ticket_service.repository.IssueCategoryRepository;
 import com.lumadesk.ticket_service.repository.TicketActionLogRepository;
 import com.lumadesk.ticket_service.repository.TicketRepository;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -335,5 +334,11 @@ public class TicketServiceImpl implements TicketService {
         }
 
         return ticketRepository.save(ticket);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Ticket> getAllTickets(){
+        return ticketRepository.findAll();
     }
 }

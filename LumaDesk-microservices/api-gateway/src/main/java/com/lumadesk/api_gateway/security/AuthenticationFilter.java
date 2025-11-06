@@ -2,6 +2,7 @@ package com.lumadesk.api_gateway.security;
 
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class AuthenticationFilter implements GatewayFilter {
 
@@ -55,6 +57,7 @@ public class AuthenticationFilter implements GatewayFilter {
     private Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus httpStatus) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(httpStatus);
+        log.error("Ran into an error: {}", err);
         return response.setComplete();
     }
 

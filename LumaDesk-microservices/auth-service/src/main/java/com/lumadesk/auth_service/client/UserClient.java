@@ -28,10 +28,7 @@ public class UserClient {
                         log.info("✅ Successfully created user profile via user-service"))
                 .doOnError(error ->
                         log.error("❌ Failed to create user profile via user-service: {}", error.getMessage()))
-                .onErrorResume(e -> {
-                    // To prevent the error from propagating and causing a 500 in the calling service
-                    return Mono.empty();
-                })
+                .onErrorResume(e -> Mono.empty())
                 .subscribe();
     }
 }

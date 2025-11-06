@@ -32,6 +32,9 @@ public class GatewayConfig {
                 .route("ai-agent-service", r -> r.path("/api/ai-agent/**")
                         .filters(f -> f.filter(filter))
                         .uri("lb://ai-agent-service"))
+
+                .route("notification-service-ws", r -> r.path("/ws/**")
+                        .uri("ws://notification-service"))
                 .build();
     }
 

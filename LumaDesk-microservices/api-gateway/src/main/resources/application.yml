@@ -41,6 +41,10 @@ spring:
               uri: lb://ai-agent-service
               predicates:
                 - Path=/api/ai-agent/**, /ai-agent-service/v3/api-docs/**,/ai-agent-service/swagger-ui/**,/ai-agent-service/swagger-ui.html
+            - id: notification_service_route
+              uri: lb://notification-service
+              predicates:
+                - Path=/api/notifications/**, /internal/api/notifications/**, /notification-service/v3/api-docs/**, /notification-service/swagger-ui/**, /notification-service/swagger-ui.html
           default-filters:
             - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Headers, RETAIN_UNIQUE
 

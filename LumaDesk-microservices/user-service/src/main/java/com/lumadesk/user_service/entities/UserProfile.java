@@ -47,7 +47,7 @@ public class UserProfile {
     private String area;
 
     @Pattern(
-            regexp = "^[0-9]{5,6}$",
+            regexp = "^\\d{5,6}$",
             message = "Pin code must be 5 or 6 digits"
     )
     private String pinCode;

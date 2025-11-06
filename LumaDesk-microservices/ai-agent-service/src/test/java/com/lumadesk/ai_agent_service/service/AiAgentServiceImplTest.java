@@ -40,7 +40,7 @@ class AiAgentServiceImplTest {
         // Then
         assertNotNull(response);
         assertEquals(expectedResponse, response.getAnswer());
-        assertTrue(response.getNewContext().contains(expectedResponse));
+        assertTrue(response.getPreviousContext().contains(expectedResponse));
     }
 
     @Test

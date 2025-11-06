@@ -19,4 +19,5 @@ public interface TicketService {
     List<Ticket> getTicketsByAssignedTo(Long engineerId);
     Ticket reopenTicket(ReopenTicketRequest request);
     Ticket triageTicketWithAI(Long ticketId);
+    List<Ticket> getAllTickets();
 }

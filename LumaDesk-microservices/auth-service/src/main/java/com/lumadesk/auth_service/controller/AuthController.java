@@ -63,7 +63,7 @@ public class AuthController {
     }
 
     @PutMapping("/change-role")
-    @PreAuthorize("hasRole('MANAGER')")
+    @PreAuthorize("hasRole('ROLE_MANAGER')")
     public ResponseEntity<String> updateUserRole(@Valid @RequestBody UpdateRoleRequest updateRoleRequest) {
         try {
             authService.updateUserRole(updateRoleRequest);

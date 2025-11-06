@@ -17,7 +17,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 @Service
+@SuppressWarnings("squid:S2139")
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService{
 
@@ -34,7 +36,7 @@ public class AuthServiceImpl implements AuthService{
     private final UserClient userClient;
 
     @Transactional
-    public Users registerUser(SignUpRequest signUpRequest) {
+    public Users registerUser(SignUpRequest signUpRequest) throws UserProfileCreationException{
         if (Boolean.TRUE.equals(userRepository.existsByEmail(signUpRequest.getEmail()))) {
             log.warn("Registration failed: Email already in use: {}", signUpRequest.getEmail());
             throw new EmailAlreadyInUseException("Error: Email is already in use!");
@@ -61,9 +63,13 @@ public class AuthServiceImpl implements AuthService{
             );
             userClient.createUserProfile(userCreationRequest);
             log.info("Successfully created profile in user-service for user ID: {}", savedUser.getId());
-        } catch (Exception e) {
-            log.error("Failed to create profile in user-service for user ID: {}. Rolling back transaction.", savedUser.getId(), e);
-            throw new UserProfileCreationException("Failed to create user profile in user-service", e);
+        }
+        catch (Exception e) {
+            log.error("User profile creation failed for user ID: {}", savedUser.getId(), e);
+            throw new UserProfileCreationException(
+                    String.format("Failed to create user profile for user ID: %s", savedUser.getId()),
+                    e
+            );
         }
         return savedUser;
     }

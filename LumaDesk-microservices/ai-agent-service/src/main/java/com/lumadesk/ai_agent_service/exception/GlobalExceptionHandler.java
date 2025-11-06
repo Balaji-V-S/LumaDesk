@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AIAgentException.class)
-    public ResponseEntity<Object> AIAgentException(
+    public ResponseEntity<Object> aiAgentException(
             AIAgentException ex, WebRequest request) {
         Map<String, Object> body = new HashMap<>();
         body.put("message", "AI Triaging cannot be done at the moment.");

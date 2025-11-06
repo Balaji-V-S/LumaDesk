@@ -88,4 +88,10 @@ public class TicketController {
         Ticket triagedTicket = ticketService.triageTicketWithAI(ticketId);
         return ResponseEntity.ok(triagedTicket);
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Ticket>> getAllTickets(){
+        List<Ticket> allTickets= ticketService.getAllTickets();
+        return ResponseEntity.ok(allTickets);
+    }
 }

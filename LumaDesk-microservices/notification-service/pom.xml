@@ -75,6 +75,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+		</dependency>
 		<!-- Enables service name resolution for WebClient (like Feign does) -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>

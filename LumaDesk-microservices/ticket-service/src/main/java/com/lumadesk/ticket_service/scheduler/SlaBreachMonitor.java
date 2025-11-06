@@ -31,54 +31,69 @@ public class SlaBreachMonitor {
             TicketStatus.REOPENED
     );
 
-    // Check for SLA breaches every 5 minutes
     @Scheduled(fixedRate = 300000)
     public void checkForSlaBreaches() {
         log.info("Running SLA Breach Monitor...");
         List<Ticket> activeTickets = ticketRepository.findByStatusIn(ACTIVE_STATUSES);
 
+        LocalDateTime now = LocalDateTime.now();
         for (Ticket ticket : activeTickets) {
-            if (ticket.getSla() == null || ticket.getAssignedTo() == null) {
-                continue; // Cannot check SLA without this info
-            }
+            if (!isTicketEligibleForSlaCheck(ticket)) continue;
 
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime creationTime = ticket.getCreatedAt();
-            Integer slaHours = ticket.getSla().getTimeLimitHour();
-            LocalDateTime breachTime = creationTime.plusHours(slaHours);
+            LocalDateTime breachTime = ticket.getCreatedAt().plusHours(ticket.getSla().getTimeLimitHour());
+            if (handleSlaBreachIfOccurred(ticket, now, breachTime)) continue;
 
-            // 1. Check for tickets that have already breached
-            if (now.isAfter(breachTime)) {
-                if (!ticket.isSlaBreached()) {
-                    ticket.setPriority(TicketPriority.URGENT);
-                    ticket.setSlaBreached(true);
-                    ticketRepository.save(ticket);
-                    log.warn("SLA BREACHED for ticket {}!", ticket.getTicketId());
-                    sendNotification(ticket, "SLA HAS BEEN BREACHED for ticket " + ticket.getTicketId());
-                }
-                continue; // Move to the next ticket
-            }
-
-            // 2. Check for impending breaches and send tiered warnings
-            long minutesUntilBreach = Duration.between(now, breachTime).toMinutes();
-
-            if (minutesUntilBreach <= 5) {
-                log.warn("SLA for ticket {} is about to breach in 5 minutes!", ticket.getTicketId());
-                sendNotification(ticket, "Urgent: 5 minutes remaining for SLA on ticket " + ticket.getTicketId());
-            } else if (minutesUntilBreach <= 10) {
-                log.warn("SLA for ticket {} is about to breach in 10 minutes!", ticket.getTicketId());
-                sendNotification(ticket, "Warning: 10 minutes remaining for SLA on ticket " + ticket.getTicketId());
-            } else if (minutesUntilBreach <= 15) {
-                // Set priority to URGENT only once
-                if (ticket.getPriority() != TicketPriority.URGENT) {
-                    ticket.setPriority(TicketPriority.URGENT);
-                    ticketRepository.save(ticket);
-                    log.warn("Priority for ticket {} set to URGENT.", ticket.getTicketId());
-                }
-                sendNotification(ticket, "Warning: 15 minutes remaining for SLA on ticket " + ticket.getTicketId());
-            }
+            handleImpendingSlaBreach(ticket, now, breachTime);
         }
         log.info("SLA Breach Monitor finished.");
+    }
+
+    private boolean isTicketEligibleForSlaCheck(Ticket ticket) {
+        return ticket.getSla() != null && ticket.getAssignedTo() != null;
+    }
+
+    private boolean handleSlaBreachIfOccurred(Ticket ticket, LocalDateTime now, LocalDateTime breachTime) {
+        if (now.isAfter(breachTime)) {
+            if (!ticket.isSlaBreached()) {
+                markTicketAsBreached(ticket);
+                sendNotification(ticket, "SLA HAS BEEN BREACHED for ticket " + ticket.getTicketId());
+            }
+            return true; // stop further processing for this ticket
+        }
+        return false;
+    }
+
+    private void handleImpendingSlaBreach(Ticket ticket, LocalDateTime now, LocalDateTime breachTime) {
+        long minutesUntilBreach = Duration.between(now, breachTime).toMinutes();
+
+        if (minutesUntilBreach <= 5) {
+            sendWarning(ticket, 5, "Urgent: 5 minutes remaining for SLA on ticket ");
+        } else if (minutesUntilBreach <= 10) {
+            sendWarning(ticket, 10, "Warning: 10 minutes remaining for SLA on ticket ");
+        } else if (minutesUntilBreach <= 15) {
+            upgradePriorityIfNeeded(ticket);
+            sendWarning(ticket, 15, "Warning: 15 minutes remaining for SLA on ticket ");
+        }
+    }
+
+    private void markTicketAsBreached(Ticket ticket) {
+        ticket.setPriority(TicketPriority.URGENT);
+        ticket.setSlaBreached(true);
+        ticketRepository.save(ticket);
+        log.warn("SLA BREACHED for ticket {}!", ticket.getTicketId());
+    }
+
+    private void upgradePriorityIfNeeded(Ticket ticket) {
+        if (ticket.getPriority() != TicketPriority.URGENT) {
+            ticket.setPriority(TicketPriority.URGENT);
+            ticketRepository.save(ticket);
+            log.warn("Priority for ticket {} set to URGENT.", ticket.getTicketId());
+        }
+    }
+
+    private void sendWarning(Ticket ticket, int minutes, String messagePrefix) {
+        log.warn("SLA for ticket {} is about to breach in {} minutes!", ticket.getTicketId(), minutes);
+        sendNotification(ticket, messagePrefix + ticket.getTicketId());
     }
 
     private void sendNotification(Ticket ticket, String message) {
