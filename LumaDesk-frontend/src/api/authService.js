@@ -60,4 +60,15 @@ export const resetPassword = (passwordData) => {
   return apiClient.post('/reset-password', passwordData);
 };
 
+/**
+ * --- NEW ---
+ * Changes a user's role (Admin/Manager only)
+ * Matches: POST /api/auth/change-role
+ * @param {object} roleData - { userId, role }
+ */
+export const changeRole = (roleData) => {
+  // apiClient's base URL is '/api/auth'
+  return apiClient.put('/change-role', roleData);
+};
+
 export default apiClient;

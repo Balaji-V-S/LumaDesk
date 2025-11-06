@@ -30,3 +30,38 @@ categoryApi.interceptors.request.use(
 export const getAllIssueCategories = () => {
   return categoryApi.get('/all');
 };
+
+/**
+ * --- NEW ---
+ * Creates a new issue category
+ * Matches: POST /api/issue-categories/create
+ * @param {object} categoryData - { categoryName }
+ */
+export const createIssueCategory = (categoryData) => {
+  return categoryApi.post('/create', categoryData);
+};
+
+/**
+ * --- NEW ---
+ * Updates an existing issue category
+ * Matches: PUT /api/issue-categories/update
+ * @param {object} categoryData - { categoryId, categoryName }
+ */
+export const updateIssueCategory = (categoryData) => {
+  return categoryApi.put('/update', categoryData);
+};
+
+/**
+ * --- NEW ---
+ * Deletes an issue category
+ * Matches: DELETE /api/issue-categories/delete?categoryId=123
+ * @param {number} categoryId
+ */
+export const deleteIssueCategory = (categoryId) => {
+  // Your endpoint uses @RequestParam, so we pass it as params
+  return categoryApi.delete('/delete', {
+    params: { categoryId },
+  });
+};
+
+export default categoryApi;

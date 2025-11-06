@@ -1,40 +1,41 @@
 // src/components/routes/RoleBasedAccess.jsx
 import React from 'react';
-import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Loader2 } from 'lucide-react'; // For a loading state
+import { Navigate, useLocation } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 
-/**
- * This component checks if a logged-in user has the correct role
- * to access a specific page.
- *
- * @param {object} props
- * @param {string[]} props.allowedRoles - Array of roles allowed, e.g., ["ROLE_MANAGER", "ROLE_NOC_ADMIN"]
- * @param {React.ReactNode} props.children - The page component to render if authorized
- */
+const MANAGER_ROLES = ['ROLE_MANAGER', 'ROLE_CXO', 'ROLE_NOC_ADMIN'];
+
 const RoleBasedAccess = ({ allowedRoles, children }) => {
   const { user, isLoading } = useAuth();
+  const location = useLocation();
 
-  // Show a spinner if the user data is still being loaded
-  // (e.g., from a 'validate token' call on app load)
-  if (isLoading || !user) {
+  if (isLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
+        <Loader2 className="h-10 w-10 animate-spin text-amber-500" />
       </div>
     );
   }
 
-  // Check if the user's role is in the allowed list
-  const hasAccess = allowedRoles.includes(user.role);
+  // 1. Check if user is logged in AND has an allowed role
+  const hasAccess =
+    user && allowedRoles?.includes(user.role);
 
   if (hasAccess) {
-    return children; // Render the page
+    return children; // The user is authorized, show the page
   }
 
-  // User is logged in, but not authorized for this specific page.
-  // Send them to a "Forbidden" page.
-  return <Navigate to="/unauthorized" replace />;
+  // 2. User is logged in but NOT authorized
+  if (user && !hasAccess) {
+    // Redirect to an 'Unauthorized' page, passing them the location
+    // they tried to access, in case they want to log in as someone else.
+    return <Navigate to="/unauthorized" state={{ from: location }} replace />;
+  }
+
+  // 3. User is not logged in at all
+  // (This shouldn't happen if wrapped in PrivateRoute, but good to have)
+  return <Navigate to="/login" state={{ from: location }} replace />;
 };
 
 export default RoleBasedAccess;

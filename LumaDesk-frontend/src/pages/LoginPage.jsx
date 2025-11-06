@@ -123,53 +123,53 @@ const LoginPage = () => {
 
                         {/* Password Field (No changes) */}
                         <Form.Field className="relative" name="password">
-                             <Form.Label className="mb-2 block text-sm font-medium text-stone-700">
+                            <Form.Label className="mb-2 block text-sm font-medium text-stone-700">
 
-                            Password
+                                Password
 
-                        </Form.Label>
+                            </Form.Label>
 
-                        <div className="relative">
+                            <div className="relative">
 
-                            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">
+                                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">
 
-                                <Lock className="h-5 w-5 text-stone-400" />
+                                    <Lock className="h-5 w-5 text-stone-400" />
 
-                            </span>
+                                </span>
 
-                            <Form.Control asChild>
+                                <Form.Control asChild>
 
-                                <input
+                                    <input
 
-                                    type="password"
+                                        type="password"
 
-                                    value={password}
+                                        value={password}
 
-                                    onChange={(e) => setPassword(e.target.value)}
+                                        onChange={(e) => setPassword(e.target.value)}
 
-                                    required
+                                        required
 
-                                    className="block w-full rounded-md border-stone-300 py-2 pl-10 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm"
+                                        className="block w-full rounded-md border-stone-300 py-2 pl-10 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm"
 
-                                    placeholder="••••••••"
+                                        placeholder="••••••••"
 
-                                />
+                                    />
 
-                            </Form.Control>
+                                </Form.Control>
 
-                        </div>
+                            </div>
 
-                        <Form.Message
+                            <Form.Message
 
-                            className="mt-2 text-sm text-rose-500"
+                                className="mt-2 text-sm text-rose-500"
 
-                            match="valueMissing"
+                                match="valueMissing"
 
-                        >
+                            >
 
-                            Please enter your password
+                                Please enter your password
 
-                        </Form.Message>
+                            </Form.Message>
                         </Form.Field>
 
                         {/* 4. API Error Display: Point this to your new *local* error state */}
@@ -188,41 +188,41 @@ const LoginPage = () => {
                         <Form.Submit asChild>
                             <Form.Submit asChild>
 
-                        <Button
+                                <Button
 
-                            type="submit"
+                                    type="submit"
 
-                            className="w-full"
+                                    className="w-full"
 
-                            variant="primary"
+                                    variant="primary"
 
-                            disabled={isLoading}
-
-                        >
-
-                            {isLoading ? (
-
-                                <motion.div
-
-                                    animate={{ rotate: 360 }}
-
-                                    transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                                    disabled={isLoading}
 
                                 >
 
-                                    <Loader2 className="mr-2 h-4 w-4" />
+                                    {isLoading ? (
 
-                                </motion.div>
+                                        <motion.div
 
-                            ) : (
+                                            animate={{ rotate: 360 }}
 
-                                'Log In'
+                                            transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
 
-                            )}
+                                        >
 
-                        </Button>
+                                            <Loader2 className="mr-2 h-4 w-4" />
 
-                    </Form.Submit>
+                                        </motion.div>
+
+                                    ) : (
+
+                                        'Log In'
+
+                                    )}
+
+                                </Button>
+
+                            </Form.Submit>
                         </Form.Submit>
                     </Form.Root>
 

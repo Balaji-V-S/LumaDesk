@@ -42,4 +42,5 @@ export const getUserProfile = (userId) => {
   return userApi.get(`/get-profile/${userId}`);
 };
 
+
 export default userApi;

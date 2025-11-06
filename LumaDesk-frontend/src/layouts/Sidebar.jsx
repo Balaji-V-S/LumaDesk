@@ -16,6 +16,10 @@ import {
   UserCheck,
   MessageSquare, // New icon for Feedbacks
   UserCircle, // New icon for My Profile
+  ClipboardList,
+  BotMessageSquare,
+  SlidersHorizontal,
+  Wand2
 } from 'lucide-react';
 
 // --- Link Definitions By Role ---
@@ -26,6 +30,7 @@ const customerLinks = [
   { name: 'New Ticket', to: '/tickets/new', icon: PlusCircle },
   { name: 'My Tickets', to: '/my-tickets', icon: Ticket },
   { name: 'Feedbacks', to: '/feedbacks', icon: MessageSquare }, // Added
+  { name: 'AI Agent', to: '/ai-agent', icon: BotMessageSquare },
   { name: 'My Profile', to: '/profile', icon: UserCircle }, // Added
 ];
 
@@ -35,18 +40,36 @@ const agentLinks = [
   { name: 'New Ticket', to: '/tickets/new', icon: PlusCircle },
   { name: 'Customers', to: '/customers', icon: Users },
   { name: 'Feedbacks', to: '/feedbacks', icon: MessageSquare }, // Added
+  { name: 'AI Agent', to: '/ai-agent', icon: BotMessageSquare},
+  { name: 'My Profile', to: '/profile', icon: UserCircle }, // Added
+];
+
+const supportAgentLinks = [
+  { name: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
+  { name: 'All Tickets', to: '/tickets/all', icon: Ticket },
+  { name: 'New Ticket', to: '/tickets/new', icon: PlusCircle },
+  { name: 'AI Agent', to: '/ai-agent', icon: BotMessageSquare },
   { name: 'My Profile', to: '/profile', icon: UserCircle }, // Added
 ];
 
 const managerLinks = [
-  { name: 'SLA Dashboard', to: '/dashboard', icon: BarChart },
-  { name: 'Escalations', to: '/tickets/escalated', icon: ShieldAlert },
+  { name: 'Dashboard', to: '/dashboard', icon: BarChart },
   { name: 'All Tickets', to: '/tickets/all', icon: Ticket },
-  { name: 'Agents', to: '/team/agents', icon: UserCheck },
-  { name: 'Engineers', to: '/team/engineers', icon: Wrench },
-  { name: 'Reports', to: '/reports', icon: BarChart },
-  { name: 'Feedbacks', to: '/feedbacks', icon: MessageSquare }, // Added
+  { name: 'Analytics', to: '/reports', icon: BarChart },
+  { name: 'SLA Management', to: '/admin/sla', icon: SlidersHorizontal },
+  { name: 'Issue Category Management', to: '/admin/categories', icon: ClipboardList },
+  { name: 'Change Roles', to: '/admin/roles', icon: Users },
+  { name: 'AI Agent', to: '/ai-agent', icon: BotMessageSquare },
   { name: 'My Profile', to: '/profile', icon: UserCircle }, // Added
+];
+
+
+const triageOfficerLinks = [
+  { name: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
+  { name: 'Triage Tickets', to: '/tickets/triage', icon: ShieldAlert },
+  { name: 'All Tickets', to: '/tickets/all', icon: Ticket },
+  { name: 'AI Agent', to: '/ai-agent', icon: BotMessageSquare },
+  { name: 'My Profile', to: '/profile', icon: UserCircle },
 ];
 
 // Helper to choose the right link set
@@ -55,8 +78,9 @@ const getLinksByRole = (role) => {
     case 'ROLE_MANAGER':
       return managerLinks;
     case 'ROLE_SUPPORT_AGENT':
+      return supportAgentLinks;
     case 'ROLE_TRIAGE_OFFICER':
-      return agentLinks;
+      return triageOfficerLinks;
     case 'ROLE_CUSTOMER':
       return customerLinks;
     // ... other roles

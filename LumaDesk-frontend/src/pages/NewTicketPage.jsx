@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getAllIssueCategories } from '../api/categoryService';
-import { createCustomerTicket } from '../api/ticketService';
+// --- 1. Import the new agent function ---
+import { createCustomerTicket, createAgentTicket } from '../api/ticketService';
 import { Button } from '../components/ui/Button';
 import {
   Loader2,
@@ -10,10 +11,38 @@ import {
   CheckCircle,
   ChevronDown,
   Check,
+  User, // --- 2. Add User icon ---
 } from 'lucide-react';
 import * as Select from '@radix-ui/react-select';
 import * as Form from '@radix-ui/react-form';
 import { motion } from 'framer-motion';
+
+// --- 3. Added a reusable FormField component to keep code DRY ---
+const FormField = ({ name, label, icon: Icon, type = 'text', ...props }) => (
+  <Form.Field name={name} className="w-full">
+    <Form.Label className="mb-2 block text-sm font-medium text-stone-700">
+      {label}
+    </Form.Label>
+    <div className="relative">
+      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">
+        <Icon className="h-5 w-5 text-stone-400" />
+      </span>
+      <Form.Control asChild>
+        <input
+          type={type}
+          className="block w-full rounded-md border-stone-300 py-2 pl-10 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm"
+          {...props}
+        />
+      </Form.Control>
+    </div>
+    <Form.Message
+      className="mt-2 text-sm text-rose-500"
+      match="valueMissing"
+    >
+      Please enter a {label.toLowerCase()}
+    </Form.Message>
+  </Form.Field>
+);
 
 const NewTicketPage = () => {
   const { user } = useAuth();
@@ -21,12 +50,19 @@ const NewTicketPage = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
   const [description, setDescription] = useState('');
   
+  // --- 4. Add new state for the agent field ---
+  const [customerUserId, setCustomerUserId] = useState('');
+  
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  // 1. Fetch categories when the page loads
+  // --- 5. Check user's role ---
+  // You can expand this logic for other agent-like roles
+  const isAgent = user?.role === 'ROLE_SUPPORT_AGENT';
+
+  // 1. Fetch categories (no change)
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -44,7 +80,7 @@ const NewTicketPage = () => {
     fetchCategories();
   }, []);
 
-  // 2. Handle the form submission
+  // 2. Handle the form submission (Now role-aware)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -57,7 +93,6 @@ const NewTicketPage = () => {
 
     setIsSubmitting(true);
 
-    // Find the full category object, as required by the DTO
     const categoryObject = categories.find(
       (c) => c.categoryId.toString() === selectedCategoryId
     );
@@ -68,24 +103,44 @@ const NewTicketPage = () => {
       return;
     }
 
-    const ticketData = {
-      customerUserId: user.userId,
-      issueCategory: {
-        categoryId: categoryObject.categoryId,
-        categoryName: categoryObject.categoryName,
-      },
-      issueDescription: description,
-    };
-
+    // --- 6. Role-based DTO and API call ---
     try {
-      await createCustomerTicket(ticketData);
-      setSuccess('Your ticket has been raised successfully! (Ticket ID: ... You may need to return this from the API)');
+      if (isAgent) {
+        // Build the Agent DTO
+        const ticketData = {
+          agentUserId: user.userId,
+          customerUserId: parseInt(customerUserId, 10), // DTO needs a number
+          issueCategory: {
+            categoryId: categoryObject.categoryId,
+            categoryName: categoryObject.categoryName,
+          },
+          issueDescription: description,
+        };
+        await createAgentTicket(ticketData);
+      } else {
+        // Build the Customer DTO (original logic)
+        const ticketData = {
+          customerUserId: user.userId,
+          issueCategory: {
+            categoryId: categoryObject.categoryId,
+            categoryName: categoryObject.categoryName,
+          },
+          issueDescription: description,
+        };
+        await createCustomerTicket(ticketData);
+      }
+      
+      setSuccess('Your ticket has been raised successfully!');
       // Clear the form
       setSelectedCategoryId('');
       setDescription('');
+      setCustomerUserId(''); // Also clear the new field
+      
     } catch (err) {
       console.error('Failed to create ticket:', err);
-      setError('A problem occurred while raising your ticket. Please try again.');
+      // Check for specific API errors
+      const errorMsg = err.response?.data?.message || 'A problem occurred while raising your ticket. Please try again.';
+      setError(errorMsg);
     } finally {
       setIsSubmitting(false);
     }
@@ -110,14 +165,31 @@ const NewTicketPage = () => {
       <h1 className="mb-6 text-3xl font-bold text-stone-800">
         Create a New Ticket
       </h1>
+      {/* --- 7. Role-aware description --- */}
       <p className="mb-6 text-stone-600">
-        Please select an issue category and describe your problem.
+        {isAgent
+          ? "Please fill in the customer's User ID and issue details below."
+          : 'Please select an issue category and describe your problem.'}
       </p>
 
       <div className="rounded-lg bg-white p-6 shadow-sm">
         <Form.Root onSubmit={handleSubmit} className="space-y-6">
           
-          {/* 1. Radix-UI Select for Category */}
+          {/* --- 8. Conditional "Customer User ID" field --- */}
+          {isAgent && (
+            <FormField
+              name="customerUserId"
+              label="Customer User ID"
+              icon={User}
+              type="number"
+              value={customerUserId}
+              onChange={(e) => setCustomerUserId(e.target.value)}
+              placeholder="Enter the Customer's User ID (e.g., 102)"
+              required
+            />
+          )}
+          
+          {/* 1. Radix-UI Select for Category (No change) */}
           <Form.Field name="category" className="w-full">
             <Form.Label className="mb-2 block text-sm font-medium text-stone-700">
               Issue Category
@@ -170,7 +242,7 @@ const NewTicketPage = () => {
             </Form.Message>
           </Form.Field>
 
-          {/* 2. Text Area for Description */}
+          {/* 2. Text Area for Description (No change) */}
           <Form.Field name="description" className="w-full">
             <Form.Label className="mb-2 block text-sm font-medium text-stone-700">
               Issue Description
@@ -193,7 +265,7 @@ const NewTicketPage = () => {
             </Form.Message>
           </Form.Field>
 
-          {/* 3. Alerts and Submit Button */}
+          {/* 3. Alerts and Submit Button (No change) */}
           {success && (
             <motion.div
               className="flex items-center rounded-md bg-lime-50 p-3 text-sm text-lime-700"
@@ -238,4 +310,4 @@ const NewTicketPage = () => {
   );
 };
 
-export default NewTicketPage;   
+export default NewTicketPage;

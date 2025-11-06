@@ -41,4 +41,31 @@ export const createCustomerTicket = (ticketData) => {
   return ticketApi.post('/raise-tickets/customer', ticketData);
 };
 
+/**
+ * NEW: Creates a new ticket as an agent for a customer.
+ * Matches: POST /api/tickets/raise-tickets/agent
+ * @param {object} ticketData - { agentUserId, customerUserId, issueCategory, issueDescription }
+ */
+export const createAgentTicket = (ticketData) => {
+  return ticketApi.post('/raise-tickets/agent', ticketData);
+};
+
+/**
+ * NEW: Gets all tickets in the system (for agents/managers).
+ * Matches: GET /api/tickets/all
+ */
+export const getAllTickets = () => {
+  return ticketApi.get('/all');
+};
+
+/**
+ * --- NEW ---
+ * Triage a new ticket and assign it.
+ * Matches: POST /api/tickets/triage-assign
+ * @param {object} triageData - The full triage DTO
+ */
+export const triageAndAssignTicket = (triageData) => {
+  return ticketApi.put('/triage-assign', triageData);
+};
+
 export default ticketApi;

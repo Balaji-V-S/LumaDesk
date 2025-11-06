@@ -30,11 +30,12 @@ const DashboardPage = () => {
 
   // This is the conditional rendering logic
   switch (user.role) {
-    case 'ROLE_MANAGER':
+    
     case 'ROLE_CXO':
     case 'ROLE_TEAM_LEAD':
       return <ManagerDashboard />;
     
+    case 'ROLE_MANAGER':
     case 'ROLE_SUPPORT_AGENT':
     case 'ROLE_TRIAGE_OFFICER':
     case 'ROLE_TECH_SUPPORT_ENGINEER':
