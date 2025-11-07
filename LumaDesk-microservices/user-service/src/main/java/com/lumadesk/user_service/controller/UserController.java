@@ -3,6 +3,7 @@ package com.lumadesk.user_service.controller;
 import com.lumadesk.user_service.dto.UpdateAddressRequest;
 import com.lumadesk.user_service.entities.UserProfile;
 import com.lumadesk.user_service.service.UserServiceImpl;
+import com.lumadesk.user_service.dto.UpdateEmployeeDetailsRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,5 +31,11 @@ public class UserController {
     public ResponseEntity<UserProfile> getUserProfileById(@PathVariable Long userId) {
         UserProfile userProfile = userService.getUserProfileById(userId);
         return ResponseEntity.ok(userProfile);
+    }
+
+    @PutMapping("/api/users/employee-details")
+    public ResponseEntity<UserProfile> updateEmployeeDetails(@Valid @RequestBody UpdateEmployeeDetailsRequest request) {
+        UserProfile updatedProfile = userService.updateEmployeeDetails(request);
+        return ResponseEntity.ok(updatedProfile);
     }
 }
