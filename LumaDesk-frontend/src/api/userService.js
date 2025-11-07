@@ -42,5 +42,13 @@ export const getUserProfile = (userId) => {
   return userApi.get(`/get-profile/${userId}`);
 };
 
+/**
+ * Sets an employee's details (Manager only).
+ * Matches: POST /api/users/employee-details
+ * @param {object} detailsData - { userId, employeeId, teamId }
+ */
+export const setEmployeeDetails = (detailsData) => {
+  return userApi.put('/employee-details', detailsData);
+};
 
 export default userApi;

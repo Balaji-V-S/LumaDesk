@@ -20,7 +20,8 @@ import {
   BotMessageSquare,
   SlidersHorizontal,
   Wand2,
-  CheckCircle
+  CheckCircle,
+  UserCog
 } from 'lucide-react';
 
 // --- Link Definitions By Role ---
@@ -57,6 +58,7 @@ const managerLinks = [
   { name: 'Dashboard', to: '/dashboard', icon: BarChart },
   { name: 'All Tickets', to: '/tickets/all', icon: Ticket },
   { name: 'Analytics', to: '/reports', icon: BarChart },
+  { name: 'Manage Employee', to: '/admin/employees', icon: UserCog }, // <-- ADDED
   { name: 'SLA Management', to: '/admin/sla', icon: SlidersHorizontal },
   { name: 'Issue Category Management', to: '/admin/categories', icon: ClipboardList },
   { name: 'Change Roles', to: '/admin/roles', icon: Users },

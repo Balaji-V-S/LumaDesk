@@ -33,6 +33,7 @@ import ResolveTicketsPage from './pages/ResolveTicketsPage'; // <-- 1. IMPORT IT
 import SlaPage from './pages/SlaPage';
 import IssueCategoryPage from './pages/IssueCategoryPage';
 import UserRolesPage from './pages/UserRolesPage';
+import ManageEmployeePage from './pages/ManageEmployeePage';
 
 
 // --- STUBBED DUMMY PAGES (for now) ---
@@ -97,6 +98,7 @@ function App() {
               {/* Manager-Only Routes */}
               <Route path="/analytics" element={<RoleBasedAccess allowedRoles={MANAGER_ROLES}><AnalyticsPage /></RoleBasedAccess>} />
               <Route path="/tickets/escalated" element={<RoleBasedAccess allowedRoles={MANAGER_ROLES}><EscalationsPage /></RoleBasedAccess>} />
+              <Route path="/admin/employees" element={<RoleBasedAccess allowedRoles={MANAGER_ROLES}><ManageEmployeePage /></RoleBasedAccess>} /> {/* <-- ADDED */}
               <Route path="/admin/sla" element={<RoleBasedAccess allowedRoles={MANAGER_ROLES}><SlaPage /></RoleBasedAccess>} />
               <Route path="/admin/categories" element={<RoleBasedAccess allowedRoles={MANAGER_ROLES}><IssueCategoryPage /></RoleBasedAccess>} />
               <Route path="/admin/roles" element={<RoleBasedAccess allowedRoles={MANAGER_ROLES}><UserRolesPage /></RoleBasedAccess>} />
