@@ -20,7 +20,7 @@ public class AuthController {
     private final AuthServiceImpl authService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody SignInRequest loginRequest) {
+    public ResponseEntity<Object> authenticateUser(@Valid @RequestBody SignInRequest loginRequest) {
         log.info("Attempting login for user: {}", loginRequest.getEmail());
         try {
             SignInResponse authResponse = authService.loginUser(loginRequest);

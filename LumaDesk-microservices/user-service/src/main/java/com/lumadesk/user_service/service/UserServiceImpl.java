@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
 
     private final UserProfileRepository userProfileRepository;
+    
+    public static final String USERNOTFOUND="User not found with ID: ";
 
     @Override
     @Transactional
@@ -25,7 +27,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserProfile updateAddress(UpdateAddressRequest request) {
         UserProfile userProfile = userProfileRepository.findById(request.getUserId())
-                .orElseThrow(() -> new UserProfileNotFoundException("User not found with ID: " + request.getUserId()));
+                .orElseThrow(() -> new UserProfileNotFoundException(USERNOTFOUND + request.getUserId()));
 
         userProfile.setAddress(request.getAddress());
         userProfile.setPinCode(request.getPinCode());
@@ -37,14 +39,14 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserProfile getUserProfileById(Long userId) {
         return userProfileRepository.findById(userId)
-                .orElseThrow(() -> new UserProfileNotFoundException("User not found with ID: " + userId));
+                .orElseThrow(() -> new UserProfileNotFoundException(USERNOTFOUND + userId));
     }
 
     @Override
     @Transactional
     public UserProfile updateEmployeeDetails(UpdateEmployeeDetailsRequest request) {
         UserProfile userProfile = userProfileRepository.findById(request.getUserId())
-                .orElseThrow(() -> new UserProfileNotFoundException("User not found with ID: " + request.getUserId()));
+                .orElseThrow(() -> new UserProfileNotFoundException(USERNOTFOUND + request.getUserId()));
 
         userProfile.setEmployeeId(request.getEmployeeId());
         userProfile.setTeamId(request.getTeamId());

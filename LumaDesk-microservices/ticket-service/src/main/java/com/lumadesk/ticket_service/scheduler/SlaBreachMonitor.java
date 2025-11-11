@@ -38,12 +38,19 @@ public class SlaBreachMonitor {
 
         LocalDateTime now = LocalDateTime.now();
         for (Ticket ticket : activeTickets) {
-            if (!isTicketEligibleForSlaCheck(ticket)) continue;
 
-            LocalDateTime breachTime = ticket.getCreatedAt().plusHours(ticket.getSla().getTimeLimitHour());
-            if (handleSlaBreachIfOccurred(ticket, now, breachTime)) continue;
+            if (!isTicketEligibleForSlaCheck(ticket)) {
+                continue;
+            }
 
-            handleImpendingSlaBreach(ticket, now, breachTime);
+            LocalDateTime breachTime = ticket.getCreatedAt()
+                    .plusHours(ticket.getSla().getTimeLimitHour());
+
+            boolean slaBreached = handleSlaBreachIfOccurred(ticket, now, breachTime);
+
+            if (!slaBreached) {
+                handleImpendingSlaBreach(ticket, now, breachTime);
+            }
         }
         log.info("SLA Breach Monitor finished.");
     }

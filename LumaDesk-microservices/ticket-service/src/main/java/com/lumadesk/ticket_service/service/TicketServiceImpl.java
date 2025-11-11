@@ -32,6 +32,10 @@ public class TicketServiceImpl implements TicketService {
     private final FeedbackServiceClient feedbackServiceClient;
     private final NotificationServiceClient notificationServiceClient;
     private final AiAgentServiceClient aiAgentServiceClient;
+    
+    public static final String SYSTEM="System"; 
+    
+    public static final String TKTNOTFOUND="Ticket not found with ID: ";
 
     @Override
     @Transactional
@@ -47,7 +51,7 @@ public class TicketServiceImpl implements TicketService {
         // Send notification
         notificationServiceClient.sendNotification(new NotificationRequest(
                 String.valueOf(savedTicket.getCreatedFor()),
-                "System",
+                SYSTEM,
                 "Ticket Created: " + savedTicket.getTicketId(),
                 "Your ticket has been created successfully"
         ));
@@ -69,7 +73,7 @@ public class TicketServiceImpl implements TicketService {
         // Send notification
         notificationServiceClient.sendNotification(new NotificationRequest(
                 String.valueOf(savedTicket.getCreatedFor()),
-                "System",
+                SYSTEM,
                 "Ticket Created: " + savedTicket.getTicketId(),
                 "A ticket has been created for you by a support agent."
         ));
@@ -97,7 +101,7 @@ public class TicketServiceImpl implements TicketService {
     @Transactional
     public Ticket triageAndAssignEngineer(TriageAssignTicketRequest request) {
         Ticket ticket = ticketRepository.findById(request.getTicketId())
-                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + request.getTicketId()));
+                .orElseThrow(() -> new ResourceNotFoundException(TKTNOTFOUND + request.getTicketId()));
         ticket.setSla(request.getSla());
         ticket.setPriority(request.getPriority());
         ticket.setSeverity(request.getSeverity());
@@ -113,7 +117,7 @@ public class TicketServiceImpl implements TicketService {
         // Send notification
         notificationServiceClient.sendNotification(new NotificationRequest(
                 String.valueOf(updatedTicket.getAssignedTo()),
-                "System",
+                SYSTEM,
                 "New Ticket Assigned: " + updatedTicket.getTicketId(),
                 "You have been assigned a new ticket."
         ));
@@ -124,7 +128,7 @@ public class TicketServiceImpl implements TicketService {
     @Transactional
     public Ticket reassignTicket(ReassignTicketRequest request) {
         Ticket ticket = ticketRepository.findById(request.getTicketId())
-                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + request.getTicketId()));
+                .orElseThrow(() -> new ResourceNotFoundException(TKTNOTFOUND + request.getTicketId()));
 
         Long oldAssignee = ticket.getAssignedTo();
         ticket.setAssignedTo(request.getNewAssignedToId());
@@ -153,7 +157,7 @@ public class TicketServiceImpl implements TicketService {
     @Transactional
     public Ticket openTicket(OpenTicketRequest request) {
         Ticket ticket = ticketRepository.findById(request.getTicketId())
-                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + request.getTicketId()));
+                .orElseThrow(() -> new ResourceNotFoundException(TKTNOTFOUND + request.getTicketId()));
 
         ticket.setStatus(TicketStatus.IN_PROGRESS);
         Ticket updatedTicket = ticketRepository.save(ticket);
@@ -168,7 +172,7 @@ public class TicketServiceImpl implements TicketService {
         // Send notification
         notificationServiceClient.sendNotification(new NotificationRequest(
                 String.valueOf(updatedTicket.getCreatedFor()),
-                "System",
+                SYSTEM,
                 "Ticket In Progress: " + updatedTicket.getTicketId(),
                 "Your ticket is now being worked on."
         ));
@@ -180,7 +184,7 @@ public class TicketServiceImpl implements TicketService {
     @Transactional
     public Ticket resolveTicket(ResolveTicketRequest request) {
         Ticket ticket = ticketRepository.findById(request.getTicketId())
-                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + request.getTicketId()));
+                .orElseThrow(() -> new ResourceNotFoundException(TKTNOTFOUND + request.getTicketId()));
 
         ticket.setStatus(TicketStatus.RESOLVED);
         Ticket updatedTicket = ticketRepository.save(ticket);
@@ -196,7 +200,7 @@ public class TicketServiceImpl implements TicketService {
         // Send notification
         notificationServiceClient.sendNotification(new NotificationRequest(
                 String.valueOf(updatedTicket.getCreatedFor()),
-                "System",
+                SYSTEM,
                 "Ticket Resolved: " + updatedTicket.getTicketId(),
                 "Your ticket has been resolved. Please confirm the resolution."
         ));
@@ -208,7 +212,7 @@ public class TicketServiceImpl implements TicketService {
     @Transactional
     public Ticket holdTicket(HoldTicketRequest request) {
         Ticket ticket = ticketRepository.findById(request.getTicketId())
-                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + request.getTicketId()));
+                .orElseThrow(() -> new ResourceNotFoundException(TKTNOTFOUND + request.getTicketId()));
 
         ticket.setStatus(TicketStatus.ON_HOLD);
         Ticket updatedTicket = ticketRepository.save(ticket);
@@ -223,7 +227,7 @@ public class TicketServiceImpl implements TicketService {
         // Send notification
         notificationServiceClient.sendNotification(new NotificationRequest(
                 String.valueOf(updatedTicket.getCreatedFor()),
-                "System",
+                SYSTEM,
                 "Ticket Closed: " + updatedTicket.getTicketId(),
                 "Your ticket has been put ONHOLD"
         ));
@@ -235,7 +239,7 @@ public class TicketServiceImpl implements TicketService {
     @Transactional
     public Ticket closeTicket(CloseTicketRequest request) {
         Ticket ticket = ticketRepository.findById(request.getTicketId())
-                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + request.getTicketId()));
+                .orElseThrow(() -> new ResourceNotFoundException(TKTNOTFOUND + request.getTicketId()));
 
         // Business logic: Only a resolved ticket can be closed
         if (ticket.getStatus() != TicketStatus.RESOLVED) {
@@ -258,7 +262,7 @@ public class TicketServiceImpl implements TicketService {
         // Send notification
         notificationServiceClient.sendNotification(new NotificationRequest(
                 String.valueOf(updatedTicket.getCreatedFor()),
-                "System",
+                SYSTEM,
                 "Ticket Closed: " + updatedTicket.getTicketId(),
                 "Your ticket has been closed."
         ));
@@ -282,7 +286,7 @@ public class TicketServiceImpl implements TicketService {
     @Transactional
     public Ticket reopenTicket(ReopenTicketRequest request) {
         Ticket ticket = ticketRepository.findById(request.getTicketId())
-                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + request.getTicketId()));
+                .orElseThrow(() -> new ResourceNotFoundException(TKTNOTFOUND + request.getTicketId()));
 
         // Find the last person the ticket was assigned to
         AssignmentLog lastAssignment = assignmentLogRepository.findTopByTicketOrderByAssignedAtDesc(ticket)
@@ -309,7 +313,7 @@ public class TicketServiceImpl implements TicketService {
 
         notificationServiceClient.sendNotification(new NotificationRequest(
                 String.valueOf(updatedTicket.getCreatedFor()),
-                "System",
+                SYSTEM,
                 "Ticket Reopened: " + updatedTicket.getTicketId(),
                 "Your ticket has been reopened."
         ));
@@ -321,7 +325,7 @@ public class TicketServiceImpl implements TicketService {
     @Transactional
     public Ticket triageTicketWithAI(Long ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new ResourceNotFoundException("Ticket not found with ID: " + ticketId));
+                .orElseThrow(() -> new ResourceNotFoundException(TKTNOTFOUND + ticketId));
         TriageRequest triageRequest = new TriageRequest(
                 ticket.getIssueCategory().getCategoryName(),
                 ticket.getIssueDescription()

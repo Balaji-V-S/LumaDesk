@@ -2,7 +2,6 @@ package com.lumadesk.api_gateway.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +17,7 @@ public class JwtUtil {
 
     private Key getSigningKey() {
         byte[] keyBytes = jwtSecret.getBytes();
-        return new SecretKeySpec(keyBytes, SignatureAlgorithm.HS512.getJcaName());
+        return new SecretKeySpec(keyBytes, Jwts.SIG.HS512.key().build().getAlgorithm());
     }
 
     public Claims getAllClaimsFromToken(String token) {
